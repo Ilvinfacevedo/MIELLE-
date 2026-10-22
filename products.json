@@ -154,10 +154,10 @@
       "kind": "Suplemento",
       "cat": "bienestar",
       "icon": "jar",
-      "price": null,
+      "price": 1600,
       "desc": "2,500 mcg de biotina con sabor a fresa para cabello, piel y uñas más fuertes.",
       "tones": [],
-      "photo": "",
+      "photo": "img/p11-mviz265q.jpg",
       "sold": false
     }
   ],
