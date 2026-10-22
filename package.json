@@ -1,0 +1,6 @@
+{
+  "name": "mielle-shop",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=18" }
+}

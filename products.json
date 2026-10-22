@@ -1,0 +1,216 @@
+{
+  "products": [
+    {
+      "id": "p1",
+      "brand": "e.l.f.",
+      "name": "Glow Reviver Lip Oil",
+      "kind": "Labios",
+      "cat": "maquillaje",
+      "icon": "gloss",
+      "price": 750,
+      "desc": "Brillo jugoso y labios con apariencia hidratada, con aceite de chabacano.",
+      "tones": [
+        [
+          "Berry Dream",
+          "#9c2f4a"
+        ],
+        [
+          "Pink Quartz",
+          "#e79bb0"
+        ],
+        [
+          "Coral Crush",
+          "#ee6f5f"
+        ],
+        [
+          "Peach Glo",
+          "#f3b08f"
+        ]
+      ],
+      "photo": "",
+      "sold": false
+    },
+    {
+      "id": "p2",
+      "brand": "e.l.f.",
+      "name": "Sheer For It Blush Tint",
+      "kind": "Labios y mejillas",
+      "cat": "maquillaje",
+      "icon": "bottle",
+      "price": 750,
+      "desc": "Tinta ligera de color natural para labios y mejillas. Construible, para todos los tonos.",
+      "tones": [],
+      "photo": "",
+      "sold": false
+    },
+    {
+      "id": "p3",
+      "brand": "e.l.f.",
+      "name": "Power Grip Rose Setting Spray",
+      "kind": "Fijador",
+      "cat": "maquillaje",
+      "icon": "spray",
+      "price": 1300,
+      "desc": "Sella tu maquillaje y lo mantiene fresco todo el día, con agua de rosas.",
+      "tones": [],
+      "photo": "",
+      "sold": false
+    },
+    {
+      "id": "p4",
+      "brand": "NYX",
+      "name": "Plump Right Back Primer",
+      "kind": "Primer hidratante",
+      "cat": "maquillaje",
+      "icon": "bottle",
+      "price": 1300,
+      "desc": "Hidrata y prepara la piel para que la base se vea más uniforme y dure más.",
+      "tones": [],
+      "photo": "",
+      "sold": false
+    },
+    {
+      "id": "p5",
+      "brand": "NYX",
+      "name": "Lip I.V.",
+      "kind": "Gloss con sérum",
+      "cat": "maquillaje",
+      "icon": "gloss",
+      "price": null,
+      "desc": "Tinta de labios hidratante con efecto gloss para unos labios jugosos.",
+      "tones": [],
+      "photo": "",
+      "sold": false
+    },
+    {
+      "id": "p6",
+      "brand": "Beauty Creations",
+      "name": "Coco Dream Lip Treatment",
+      "kind": "Tratamiento de labios",
+      "cat": "maquillaje",
+      "icon": "tube",
+      "price": null,
+      "desc": "Tratamiento nutritivo de coco para labios suaves.",
+      "tones": [],
+      "photo": "",
+      "sold": false
+    },
+    {
+      "id": "p7",
+      "brand": "göt2b",
+      "name": "Glued Gel de Peinado",
+      "kind": "Cabello",
+      "cat": "cabello",
+      "icon": "tube",
+      "price": 950,
+      "desc": "Fijación extrema y resistente al agua, sin residuos. Para peinados creativos.",
+      "tones": [],
+      "photo": "",
+      "sold": false
+    },
+    {
+      "id": "p8",
+      "brand": "WOW",
+      "name": "Dream Coat for Curly Hair",
+      "kind": "Spray anti-frizz",
+      "cat": "cabello",
+      "icon": "spray",
+      "price": 2200,
+      "desc": "Controla el frizz, define rizos y protege del calor hasta 230 °C.",
+      "tones": [],
+      "photo": "",
+      "sold": false
+    },
+    {
+      "id": "p9",
+      "brand": "eos",
+      "name": "Loción Corporal Vanilla Cashmere",
+      "kind": "Cuerpo",
+      "cat": "cuerpo",
+      "icon": "bottle",
+      "price": 1500,
+      "desc": "Hidratación profunda por 24 horas con un delicioso aroma a vainilla.",
+      "tones": [],
+      "photo": "",
+      "sold": false
+    },
+    {
+      "id": "p10",
+      "brand": "eos",
+      "name": "Splash Corporal Vanilla Cashmere",
+      "kind": "Fragancia",
+      "cat": "cuerpo",
+      "icon": "spray",
+      "price": 1600,
+      "desc": "Aroma ligero a vainilla cremosa, flores suaves y caramelo, perfecto para el día.",
+      "tones": [],
+      "photo": "",
+      "sold": false
+    },
+    {
+      "id": "p11",
+      "brand": "Nature's Bounty",
+      "name": "Hair, Skin & Nails Gummies",
+      "kind": "Suplemento",
+      "cat": "bienestar",
+      "icon": "jar",
+      "price": null,
+      "desc": "2,500 mcg de biotina con sabor a fresa para cabello, piel y uñas más fuertes.",
+      "tones": [],
+      "photo": "",
+      "sold": false
+    }
+  ],
+  "settings": {
+    "whatsapp": "18296215739",
+    "shipping": [
+      {
+        "id": "s1",
+        "name": "Caribe Express",
+        "cost": null,
+        "note": "Retiras en la sucursal de tu provincia",
+        "branch": true
+      },
+      {
+        "id": "s2",
+        "name": "Vimenpaq",
+        "cost": null,
+        "note": "Retiras en la sucursal de tu provincia",
+        "branch": true
+      },
+      {
+        "id": "s3",
+        "name": "Metro Pac",
+        "cost": null,
+        "note": "Retiras en la terminal de Metro de tu ciudad",
+        "branch": true
+      },
+      {
+        "id": "s4",
+        "name": "Domex",
+        "cost": null,
+        "note": "Envío a tu provincia",
+        "branch": true
+      },
+      {
+        "id": "s5",
+        "name": "Delivery a domicilio",
+        "cost": null,
+        "note": "Santo Domingo y Distrito Nacional",
+        "branch": false
+      },
+      {
+        "id": "s6",
+        "name": "Retiro en persona",
+        "cost": 0,
+        "note": "Coordinamos el punto de entrega",
+        "branch": false
+      }
+    ],
+    "payments": [
+      "Transferencia bancaria",
+      "Efectivo al recibir"
+    ],
+    "bank": ""
+  }
+}
