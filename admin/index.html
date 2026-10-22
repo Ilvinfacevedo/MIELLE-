@@ -39,7 +39,7 @@
   </div>
   <div class="tabs" role="group" aria-label="Sección">
     <button class="chip" type="button" id="tabProducts" aria-pressed="true">Productos</button>
-    <button class="chip" type="button" id="tabSettings" aria-pressed="false">Pedidos y envíos</button>
+    <button class="chip" type="button" id="tabSettings" aria-pressed="false">Portada y envíos</button>
   </div>
   <p class="status" id="status" role="status"></p>
 
@@ -48,6 +48,22 @@
   </div>
 
     <div id="settingsView" class="view pform" hidden>
+      <h3 style="font-size:1.3rem">Portada de la tienda</h3>
+      <div class="field"><label for="sAnnounce">Aviso de la barrita superior</label><input type="text" id="sAnnounce" placeholder="🚚 Envío gratis desde RD$2,500"><small>Déjalo vacío para ocultar la barrita.</small></div>
+      <div class="field"><label for="sHeroTitle">Título principal</label><input type="text" id="sHeroTitle" placeholder="Lo viral de TikTok, ahora en RD"></div>
+      <div class="field"><label for="sHeroText">Texto debajo del título</label><textarea id="sHeroText" placeholder="Maquillaje, cuidado del cabello y fragancias originales. Pide en minutos y recíbelo en todo el país."></textarea></div>
+      <div class="field">
+        <span class="lbl">Foto de portada</span>
+        <div class="photo-box">
+          <div class="photo-prev" id="heroPrev" style="width:160px;height:100px">Sin foto</div>
+          <div class="photo-acts">
+            <span class="btn ghost sm file-lbl">Elegir foto<input type="file" id="sHeroPhoto" accept="image/*"></span>
+            <button class="btn ghost sm" type="button" id="removeHero">Quitar foto</button>
+          </div>
+        </div>
+        <small>Mejor horizontal. Sin foto, la portada usa las fotos de tus productos.</small>
+      </div>
+      <h3 style="font-size:1.3rem;margin-top:10px">Pedidos y envíos</h3>
       <div class="field"><label for="sWa">Número de WhatsApp donde llegan los pedidos</label><input type="tel" id="sWa" inputmode="tel" placeholder="809-555-1234"><small>Con código de área. Ej. 809, 829 u 849.</small></div>
       <div class="field">
         <span class="lbl">Formas de envío y su costo (RD$)</span>
@@ -90,11 +106,13 @@
         </div>
       </div>
       <div class="field"><label for="fDesc">Descripción</label><textarea id="fDesc" placeholder="Brillo jugoso y labios hidratados."></textarea></div>
+      <div class="field"><label for="fHow">Cómo usarlo (opcional)</label><textarea id="fHow" placeholder="Aplica directamente sobre los labios. Reaplica cuando quieras más brillo."></textarea><small>Sale en la ficha del producto.</small></div>
       <div class="field">
         <span class="lbl">Tonos (opcional)</span>
         <div class="tone-list" id="toneList"></div>
         <button class="btn ghost sm" type="button" id="addTone" style="justify-self:start">Agregar tono</button>
       </div>
+      <label class="check"><input type="checkbox" id="fFeatured"> Mostrar en "Lo más pedido"</label>
       <label class="check"><input type="checkbox" id="fSold"> Agotado</label>
       <div class="drawer-foot">
         <button class="btn ghost" type="button" id="cancelForm">Cancelar</button>

@@ -10,6 +10,7 @@ function valid(body){
   if (!d || !Array.isArray(d.products) || typeof d.settings !== "object" || d.settings === null) return "Datos inválidos";
   if (d.products.some(p => !p || typeof p.id !== "string" || typeof p.name !== "string")) return "Hay un producto sin nombre";
   if (d.products.some(p => p.photo && !IMG_PATH.test(p.photo))) return "Ruta de foto inválida";
+  if (d.settings.heroPhoto && !IMG_PATH.test(d.settings.heroPhoto)) return "Ruta de foto de portada inválida";
   const files = body.files || [], deletes = body.deletes || [];
   if (!Array.isArray(files) || files.some(f => !f || !IMG_PATH.test(f.path) || !SHA.test(f.sha))) return "Fotos inválidas";
   if (!Array.isArray(deletes) || deletes.some(p => !IMG_PATH.test(p))) return "Fotos a borrar inválidas";

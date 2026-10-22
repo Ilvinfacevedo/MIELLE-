@@ -15,7 +15,11 @@ const DEFAULT_SETTINGS = {
     {id:"s6", name:"Retiro en persona", cost:0, note:"Coordinamos el punto de entrega", branch:false}
   ],
   payments: ["Transferencia bancaria", "Efectivo al recibir"],
-  bank: ""
+  bank: "",
+  announcement: "🚚 Enviamos a toda República Dominicana",
+  heroTitle: "",
+  heroText: "",
+  heroPhoto: ""
 };
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt = n => Number(n).toLocaleString("en-US");
@@ -47,52 +51,118 @@ function toast(msg){
 function drawing(p, cls){
   return `<svg class="${cls}" viewBox="0 0 60 100" aria-hidden="true"><use href="#i-${esc(p.icon || "bottle")}"/></svg>`;
 }
-function card(p){
-  const sel = toneSel[p.id] ?? (p.tones && p.tones[0] ? p.tones[0][0] : null);
-  const tones = p.tones && p.tones.length ? `<div class="tones" role="group" aria-label="Tono">${p.tones.map(([n,c])=>`<button type="button" class="tone" data-pid="${esc(p.id)}" data-tone="${esc(n)}" aria-pressed="${n === sel}"><i style="background:${esc(c)}"></i>${esc(n)}</button>`).join("")}</div>` : "";
-  const price = p.price ? `<span class="price"><small>RD$</small>${fmt(p.price)}</span>` : `<span class="price ask">Precio por DM</span>`;
-  const visual = p.photo
-    ? `<div class="visual has-photo"><img src="${esc(photoURL(p))}" alt="${esc(p.brand)} ${esc(p.name)}" loading="lazy"><span class="brand">${esc(p.brand)}</span>`
-    : `<div class="visual"><span class="brand">${esc(p.brand)}</span>${drawing(p,"draw")}`;
-  const buy = p.sold
-    ? `<span class="btn sm" aria-disabled="true">Agotado</span>`
-    : `<button class="btn sm" type="button" data-add="${esc(p.id)}">Agregar</button>`;
-  return `<article class="card" data-cat="${esc(p.cat)}">
-    ${visual}<svg class="heart"><use href="#i-heart"/></svg>${p.sold ? '<span class="sold">Agotado</span>' : ""}</div>
-    <div class="body">
-      ${p.kind ? `<span class="kind">${esc(p.kind)}</span>` : ""}
-      <h3>${esc(p.name)}</h3>
-      ${p.desc ? `<p>${esc(p.desc)}</p>` : ""}
-      ${tones}
-      <div class="foot">${price}${buy}</div>
-    </div>
+const firstTone = p => (p.tones && p.tones[0] ? p.tones[0][0] : "");
+function priceHTML(p){
+  return p.price ? `<span class="price"><small>RD$</small>${fmt(p.price)}</span>` : `<span class="price ask">Precio por DM</span>`;
+}
+function card(p, extra){
+  const tones = p.tones && p.tones.length
+    ? `<span class="dots" aria-label="${p.tones.length} tonos">${p.tones.slice(0, 5).map(([, c]) => `<i style="background:${esc(c)}"></i>`).join("")}<em>${p.tones.length} tonos</em></span>` : "";
+  const badge = p.sold ? `<span class="badge dark">Agotado</span>` : p.featured ? `<span class="badge">Más pedido</span>` : "";
+  const visual = photoURL(p)
+    ? `<img src="${esc(photoURL(p))}" alt="${esc(p.brand)} ${esc(p.name)}" loading="lazy">`
+    : drawing(p, "draw");
+  const add = p.sold ? "" : `<button class="plus" type="button" data-add="${esc(p.id)}" aria-label="Agregar ${esc(p.name)} al carrito">+</button>`;
+  return `<article class="card ${extra || ""}">
+    <button class="card-hit" type="button" data-open="${esc(p.id)}" aria-label="Ver ${esc(p.brand)} ${esc(p.name)}">
+      <span class="visual">${visual}${badge}</span>
+      <span class="body"><span class="brand-s">${esc(p.brand)}</span><span class="name">${esc(p.name)}</span>${tones}</span>
+    </button>
+    <div class="foot">${priceHTML(p)}${add}</div>
   </article>`;
 }
 function render(list){
   const shown = list.filter(p => filter === "todo" || p.cat === filter);
-  $("grid").innerHTML = shown.length ? shown.map(card).join("") : `<p class="empty">Pronto tendremos productos aquí.</p>`;
+  $("grid").innerHTML = shown.length ? shown.map(p => card(p)).join("") : `<p class="empty">Pronto tendremos productos aquí.</p>`;
+  $("countLabel").textContent = shown.length ? `${shown.length} producto${shown.length === 1 ? "" : "s"}` : "";
   document.querySelectorAll("#cats .chip").forEach(b => {
     const f = b.dataset.f;
     b.hidden = f !== "todo" && !list.some(p => p.cat === f);
     b.setAttribute("aria-pressed", f === filter ? "true" : "false");
   });
 }
+function renderRail(list){
+  let picks = list.filter(p => p.featured && !p.sold);
+  if (!picks.length) picks = list.filter(p => !p.sold).sort((a, b) => (photoURL(b) ? 1 : 0) - (photoURL(a) ? 1 : 0));
+  picks = picks.slice(0, 8);
+  $("destacados").hidden = !picks.length;
+  $("rail").innerHTML = picks.map(p => card(p, "rail-card")).join("");
+}
+function renderHero(){
+  if (settings.announcement) $("announceText").textContent = settings.announcement;
+  $("announce").hidden = !settings.announcement;
+  if (settings.heroTitle) $("heroTitle").textContent = settings.heroTitle;
+  if (settings.heroText) $("heroText").textContent = settings.heroText;
+  const hero = settings.heroPhoto ? photoURL({photo: settings.heroPhoto}) : "";
+  const shots = products.filter(p => photoURL(p)).slice(0, 3);
+  if (hero) $("heroArt").innerHTML = `<img class="hero-img" src="${esc(hero)}" alt="Productos de Mielle">`;
+  else if (shots.length) $("heroArt").innerHTML = `<div class="collage n${shots.length}">${shots.map(p => `<img src="${esc(photoURL(p))}" alt="${esc(p.brand)} ${esc(p.name)}">`).join("")}</div>`;
+}
 document.querySelectorAll("#cats .chip").forEach(b => b.addEventListener("click", () => { filter = b.dataset.f; render(products); }));
-$("grid").addEventListener("click", e => {
-  const t = e.target.closest(".tone");
-  if (t) {
-    toneSel[t.dataset.pid] = t.dataset.tone;
-    t.parentElement.querySelectorAll(".tone").forEach(b => b.setAttribute("aria-pressed", b === t ? "true" : "false"));
-    return;
-  }
+
+function quickAdd(p){
+  if (p.tones && p.tones.length) { openSheet(p); return; }
+  addToCart(p.id, "");
+  toast(`Agregado: ${p.name}`);
+}
+function onCatalogClick(e){
   const a = e.target.closest("[data-add]");
-  if (a) {
-    const p = products.find(x => x.id === a.dataset.add); if (!p) return;
-    const tone = toneSel[p.id] ?? (p.tones && p.tones[0] ? p.tones[0][0] : "");
-    addToCart(p.id, tone || "");
-    toast(`Agregado: ${p.name}${tone ? " · " + tone : ""}`);
-  }
+  if (a) { const p = products.find(x => x.id === a.dataset.add); if (p) quickAdd(p); return; }
+  const o = e.target.closest("[data-open]");
+  if (o) { const p = products.find(x => x.id === o.dataset.open); if (p) openSheet(p); }
+}
+$("grid").addEventListener("click", onCatalogClick);
+$("rail").addEventListener("click", onCatalogClick);
+
+/* ---------- Product detail sheet ---------- */
+let sheetProduct = null, sheetQty = 1;
+function openSheet(p){
+  sheetProduct = p; sheetQty = 1;
+  toneSel[p.id] = toneSel[p.id] || firstTone(p);
+  $("sheetPhoto").innerHTML = photoURL(p) ? `<img src="${esc(photoURL(p))}" alt="${esc(p.brand)} ${esc(p.name)}">` : drawing(p, "draw");
+  $("sheetKind").textContent = p.kind || ""; $("sheetKind").hidden = !p.kind;
+  $("sheetBrand").textContent = p.brand || "";
+  $("sheetName").textContent = p.name;
+  $("sheetPrice").innerHTML = priceHTML(p);
+  $("sheetDesc").textContent = p.desc || ""; $("sheetDesc").hidden = !p.desc;
+  $("sheetHow").textContent = p.howto || ""; $("sheetHowWrap").hidden = !p.howto;
+  const hasTones = !!(p.tones && p.tones.length);
+  $("sheetTonesField").hidden = !hasTones;
+  if (hasTones) renderSheetTones();
+  $("qVal").textContent = 1;
+  $("sheetBuy").hidden = !!p.sold; $("sheetNow").hidden = !!p.sold;
+  if (p.sold) $("sheetPrice").insertAdjacentHTML("beforeend", ` <span class="badge dark">Agotado</span>`);
+  $("sheet").hidden = false; document.body.style.overflow = "hidden";
+  $("sheet").querySelector(".sheet-box").scrollTop = 0;
+  $("closeSheet").focus();
+}
+function renderSheetTones(){
+  const p = sheetProduct, sel = toneSel[p.id];
+  $("sheetToneName").textContent = sel;
+  $("sheetTones").innerHTML = p.tones.map(([n, c]) => `<button type="button" class="tone" data-tone="${esc(n)}" aria-pressed="${n === sel}"><i style="background:${esc(c)}"></i>${esc(n)}</button>`).join("");
+}
+function closeSheet(){ $("sheet").hidden = true; document.body.style.overflow = ""; sheetProduct = null; }
+$("sheetTones").addEventListener("click", e => {
+  const t = e.target.closest(".tone"); if (!t || !sheetProduct) return;
+  toneSel[sheetProduct.id] = t.dataset.tone; renderSheetTones();
 });
+$("qMinus").onclick = () => { sheetQty = Math.max(1, sheetQty - 1); $("qVal").textContent = sheetQty; };
+$("qPlus").onclick = () => { sheetQty = Math.min(20, sheetQty + 1); $("qVal").textContent = sheetQty; };
+function addFromSheet(){
+  const p = sheetProduct; if (!p) return;
+  const tone = toneSel[p.id] || "";
+  for (let i = 0; i < sheetQty; i++) addToCart(p.id, tone);
+  toast(`Agregado: ${sheetQty > 1 ? sheetQty + " × " : ""}${p.name}${tone ? " · " + tone : ""}`);
+}
+$("sheetAdd").onclick = () => { addFromSheet(); closeSheet(); };
+$("sheetNow").onclick = () => { addFromSheet(); closeSheet(); openCart(); };
+$("closeSheet").onclick = closeSheet;
+$("sheet").addEventListener("click", e => { if (e.target === $("sheet")) closeSheet(); });
+document.addEventListener("keydown", e => {
+  if (e.key !== "Escape") return;
+  if (!$("sheet").hidden) closeSheet(); else if (!$("cart").hidden) closeCart();
+});
+
 /* ---------- Cart ---------- */
 let cart = [];
 let step = 0; // 0 cart, 1 datos, 2 envío y pago, 3 confirmar, 4 listo
@@ -395,6 +465,8 @@ $("shareInvoice").onclick = async () => {
   }
   cart = local.get("mielle-cart", []).filter(i => products.some(p => p.id === i.id && !p.sold));
   render(products);
+  renderRail(products);
+  renderHero();
   fillOptions();
   updateCount();
 })();

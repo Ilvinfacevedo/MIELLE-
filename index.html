@@ -25,11 +25,13 @@
   </defs>
 </svg>
 
+<div class="announce" id="announce"><span id="announceText">🚚 Enviamos a toda República Dominicana</span></div>
+
 <nav class="top">
   <div class="wrap">
     <a class="mark" href="#top">MIELLE</a>
     <div class="navlinks">
-      <a href="#productos">Productos</a>
+      <a href="#catalogo">Productos</a>
       <a href="#pedir">Cómo pedir</a>
       <a href="#sorteo">Sorteo</a>
     </div>
@@ -38,26 +40,44 @@
 </nav>
 
 <header class="hero" id="top">
-  <div class="wrap">
-    <svg class="bow" viewBox="0 0 120 60" aria-hidden="true">
-      <path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" d="M60 26C48 8 22 2 14 12s2 26 20 24 20-6 26-10zM60 26c12-18 38-24 46-14s-2 26-20 24-20-6-26-10z"/>
-      <path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" d="M56 30l-14 26M64 30l14 26"/>
-      <circle cx="60" cy="27" r="5" fill="currentColor"/>
-    </svg>
-    <p class="eyebrow">Beauty &amp; Lifestyle</p>
-    <h1>MIELLE</h1>
-    <p class="tag script">Todo lo que te encanta, en un solo lugar</p>
-    <p class="lead">Maquillaje, cuidado del cabello, perfumes y accesorios de las marcas que amas. Pequeños detalles, grandes encantos.</p>
-    <div class="ctas">
-      <a class="btn" href="#productos">Ver productos</a>
-      <a class="btn ghost" href="https://www.instagram.com/shopmielle_/" target="_blank" rel="noopener">@shopmielle_</a>
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow">Beauty &amp; Lifestyle · RD</p>
+      <h1 id="heroTitle">Lo viral de TikTok, ahora en RD</h1>
+      <p class="lead" id="heroText">Maquillaje, cuidado del cabello y fragancias originales. Pide en minutos y recíbelo en todo el país.</p>
+      <div class="ctas">
+        <a class="btn" href="#catalogo">Comprar ahora</a>
+        <a class="btn ghost" href="https://www.instagram.com/shopmielle_/" target="_blank" rel="noopener">@shopmielle_</a>
+      </div>
     </div>
-    <div class="flag"><i aria-hidden="true"></i> Enviamos a toda República Dominicana</div>
+    <div class="hero-art" id="heroArt">
+      <div class="hero-fallback">
+        <svg class="bow" viewBox="0 0 120 60" aria-hidden="true">
+          <path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" d="M60 26C48 8 22 2 14 12s2 26 20 24 20-6 26-10zM60 26c12-18 38-24 46-14s-2 26-20 24-20-6-26-10z"/>
+          <path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" d="M56 30l-14 26M64 30l14 26"/>
+          <circle cx="60" cy="27" r="5" fill="currentColor"/>
+        </svg>
+        <span class="hero-word">MIELLE</span>
+        <span class="script">Todo lo que te encanta, en un solo lugar</span>
+      </div>
+    </div>
   </div>
 </header>
 
+<section class="featured" id="destacados" aria-labelledby="featTitle">
+  <div class="wrap row-head">
+    <h2 id="featTitle">Lo más pedido</h2>
+    <a href="#catalogo">Ver todo</a>
+  </div>
+  <div class="rail" id="rail"></div>
+</section>
+
 <main id="productos">
-  <div class="wrap">
+  <div class="wrap" id="catalogo">
+    <div class="row-head">
+      <h2>Catálogo</h2>
+      <span class="muted-s" id="countLabel"></span>
+    </div>
     <div class="cats" id="cats" role="group" aria-label="Filtrar por categoría">
       <button class="chip" id="f-todo" data-f="todo" aria-pressed="true">Todo</button>
       <button class="chip" id="f-maquillaje" data-f="maquillaje" aria-pressed="false">Maquillaje</button>
@@ -66,14 +86,7 @@
       <button class="chip" id="f-accesorios" data-f="accesorios" aria-pressed="false">Accesorios</button>
       <button class="chip" id="f-bienestar" data-f="bienestar" aria-pressed="false">Bienestar</button>
     </div>
-
-    <section style="padding-top:0">
-      <div class="head">
-        <span class="script">nuestros favoritos</span>
-        <h2>Productos</h2>
-      </div>
-      <div class="grid" id="grid"></div>
-    </section>
+    <div class="grid" id="grid"></div>
 
     <section id="pedir">
       <div class="head">
@@ -115,6 +128,28 @@
 </footer>
 
 <div class="toast" id="toast" role="status" hidden></div>
+
+<!-- Product detail -->
+<div class="panel sheet" id="sheet" hidden>
+  <div class="sheet-box" role="dialog" aria-modal="true" aria-labelledby="sheetName">
+    <button class="icon-btn sheet-close" id="closeSheet" type="button" aria-label="Cerrar">×</button>
+    <div class="sheet-photo" id="sheetPhoto"></div>
+    <div class="sheet-info">
+      <span class="kind" id="sheetKind"></span>
+      <span class="sheet-brand" id="sheetBrand"></span>
+      <h2 id="sheetName"></h2>
+      <div class="sheet-price" id="sheetPrice"></div>
+      <div class="field" id="sheetTonesField"><span class="lbl">Tono: <b id="sheetToneName"></b></span><div class="tones" id="sheetTones" role="group" aria-label="Tono"></div></div>
+      <p class="sheet-desc" id="sheetDesc"></p>
+      <div class="howto" id="sheetHowWrap"><h3>Cómo usarlo</h3><p id="sheetHow"></p></div>
+      <div class="sheet-buy" id="sheetBuy">
+        <div class="qty"><button class="icon-btn" type="button" id="qMinus" aria-label="Quitar uno">−</button><output id="qVal" aria-label="Cantidad">1</output><button class="icon-btn" type="button" id="qPlus" aria-label="Agregar uno">+</button></div>
+        <button class="btn" type="button" id="sheetAdd">Agregar al carrito</button>
+      </div>
+      <button class="btn ghost" type="button" id="sheetNow">Comprar ahora</button>
+    </div>
+  </div>
+</div>
 
 <!-- Cart and checkout -->
 <div class="panel" id="cart" hidden>

@@ -9,6 +9,7 @@ const photoURL = p => p._newPhoto || (p.photo ? (/^(https?:|data:|\/)/.test(p.ph
 let password = "";
 let original = null, draft = null, draftSettings = null;
 let editing = null, formPhoto = "", formPhotoIsNew = false, dirty = false, tab = "products";
+const heroURL = s => s._newHeroPhoto || (s.heroPhoto ? "/" + s.heroPhoto : "");
 
 function setStatus(msg, err){ $("status").textContent = msg; $("status").classList.toggle("err", !!err); }
 function markDirty(){ dirty = true; $("publishBtn").disabled = false; setStatus("Tienes cambios sin guardar."); }
@@ -44,7 +45,7 @@ async function start(){
   const data = await r.json();
   original = {products: data.products || [], settings: data.settings || {}};
   draft = clone(original.products);
-  draftSettings = Object.assign({whatsapp: "", shipping: [], payments: [], bank: ""}, clone(original.settings));
+  draftSettings = Object.assign({whatsapp: "", shipping: [], payments: [], bank: "", announcement: "🚚 Enviamos a toda República Dominicana"}, clone(original.settings));
   $("login").hidden = true; $("adminPage").hidden = false;
   dirty = false; $("publishBtn").disabled = true;
   setTab("products"); renderAdminList(); renderSettings();
@@ -64,8 +65,9 @@ function renderAdminList(){
   if (!draft.length) { $("adminList").innerHTML = `<li class="empty">Aún no hay productos. Toca "Nuevo producto".</li>`; return; }
   $("adminList").innerHTML = draft.map((p, i) => `<li class="arow" data-i="${i}">
     <div class="thumb">${photoURL(p) ? `<img src="${esc(photoURL(p))}" alt="">` : drawing(p)}</div>
-    <div class="info"><b>${esc(p.name)}</b><span>${esc(p.brand)} · ${p.price ? money(p.price) : "Precio por DM"}${p.sold ? " · Agotado" : ""}</span></div>
+    <div class="info"><b>${esc(p.name)}</b><span>${esc(p.brand)} · ${p.price ? money(p.price) : "Precio por DM"}${p.featured ? " · ★ Más pedido" : ""}${p.sold ? " · Agotado" : ""}</span></div>
     <div class="acts">
+      <button class="icon-btn" type="button" data-act="top" aria-label="Poner de primero" title="Poner de primero" ${i === 0 ? "disabled" : ""}>⤒</button>
       <button class="icon-btn" type="button" data-act="up" aria-label="Subir" ${i === 0 ? "disabled" : ""}>↑</button>
       <button class="icon-btn" type="button" data-act="down" aria-label="Bajar" ${i === draft.length - 1 ? "disabled" : ""}>↓</button>
       <button class="btn ghost sm" type="button" data-act="edit">Editar</button>
@@ -76,7 +78,8 @@ function renderAdminList(){
 $("adminList").addEventListener("click", e => {
   const btn = e.target.closest("button[data-act]"); if (!btn) return;
   const i = Number(btn.closest("li").dataset.i), act = btn.dataset.act;
-  if (act === "up" && i > 0) { [draft[i-1], draft[i]] = [draft[i], draft[i-1]]; markDirty(); renderAdminList(); }
+  if (act === "top" && i > 0) { draft.unshift(draft.splice(i, 1)[0]); markDirty(); renderAdminList(); }
+  else if (act === "up" && i > 0) { [draft[i-1], draft[i]] = [draft[i], draft[i-1]]; markDirty(); renderAdminList(); }
   else if (act === "down" && i < draft.length - 1) { [draft[i+1], draft[i]] = [draft[i], draft[i+1]]; markDirty(); renderAdminList(); }
   else if (act === "edit") openForm(i);
   else if (act === "del") {
@@ -94,13 +97,25 @@ function shipRow(s){
   row.querySelector("button").onclick = () => { row.remove(); readSettings(); markDirty(); };
   $("shipList").appendChild(row);
 }
+function setHeroPreview(){
+  const src = heroURL(draftSettings);
+  $("heroPrev").innerHTML = src ? `<img src="${esc(src)}" alt="Foto de portada">` : "Sin foto";
+  $("removeHero").hidden = !src;
+}
 function renderSettings(){
+  $("sAnnounce").value = draftSettings.announcement ?? "";
+  $("sHeroTitle").value = draftSettings.heroTitle || "";
+  $("sHeroText").value = draftSettings.heroText || "";
+  setHeroPreview();
   $("sWa").value = draftSettings.whatsapp || "";
   $("sPay").value = (draftSettings.payments || []).join("\n");
   $("sBank").value = draftSettings.bank || "";
   $("shipList").innerHTML = ""; (draftSettings.shipping || []).forEach(shipRow);
 }
 function readSettings(){
+  draftSettings.announcement = $("sAnnounce").value.trim();
+  draftSettings.heroTitle = $("sHeroTitle").value.trim();
+  draftSettings.heroText = $("sHeroText").value.trim();
   draftSettings.whatsapp = $("sWa").value.trim();
   draftSettings.payments = $("sPay").value.split("\n").map(s => s.trim()).filter(Boolean);
   draftSettings.bank = $("sBank").value.trim();
@@ -110,7 +125,15 @@ function readSettings(){
       note: r.querySelector('[data-k="note"]').value.trim(), branch: r.querySelector('[data-k="branch"]').checked};
   }).filter(s => s.name);
 }
-$("settingsView").addEventListener("input", () => { readSettings(); markDirty(); });
+$("settingsView").addEventListener("input", e => { if (e.target.type === "file") return; readSettings(); markDirty(); });
+$("sHeroPhoto").addEventListener("change", async e => {
+  const f = e.target.files && e.target.files[0]; if (!f) return;
+  setStatus("Preparando la foto…");
+  try { draftSettings._newHeroPhoto = await shrink(f, 1600); setHeroPreview(); markDirty(); }
+  catch (err) { setStatus("No pude abrir esa foto. Prueba con una JPG o PNG.", true); }
+  e.target.value = "";
+});
+$("removeHero").onclick = () => { delete draftSettings._newHeroPhoto; draftSettings.heroPhoto = ""; setHeroPreview(); markDirty(); };
 $("addShip").onclick = () => { shipRow({id: "s" + Date.now().toString(36), name: "", cost: null, note: "", branch: false}); };
 
 function setTab(t){
@@ -144,7 +167,7 @@ function openForm(i){
   $("formTitle").textContent = i == null ? "Nuevo producto" : "Editar producto";
   $("fBrand").value = p.brand || ""; $("fName").value = p.name || ""; $("fKind").value = p.kind || "";
   $("fPrice").value = p.price ?? ""; $("fCat").value = p.cat || "maquillaje"; $("fDesc").value = p.desc || "";
-  $("fSold").checked = !!p.sold; $("fPhoto").value = "";
+  $("fSold").checked = !!p.sold; $("fFeatured").checked = !!p.featured; $("fHow").value = p.howto || ""; $("fPhoto").value = "";
   $("toneList").innerHTML = ""; (p.tones || []).forEach(([n,c]) => toneRow(n, c));
   setPhotoPreview(photoURL(p), !!p._newPhoto);
   $("listView").hidden = true; $("settingsView").hidden = true; $("listFoot").hidden = true; $("pform").hidden = false;
@@ -158,9 +181,9 @@ function loadImage(file){
     img.src = url;
   });
 }
-async function shrink(file){
+async function shrink(file, max = 1000){
   const img = await loadImage(file);
-  const max = 1000, scale = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+  const scale = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
   const c = document.createElement("canvas");
   c.width = Math.round(img.naturalWidth * scale); c.height = Math.round(img.naturalHeight * scale);
   const ctx = c.getContext("2d"); ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, c.width, c.height);
@@ -188,7 +211,7 @@ $("pform").addEventListener("submit", e => {
   const p = Object.assign({}, base, {
     brand: $("fBrand").value.trim(), name, kind: $("fKind").value.trim(),
     cat: $("fCat").value, price: raw ? Number(raw) : null, desc: $("fDesc").value.trim(),
-    tones, sold: $("fSold").checked
+    tones, sold: $("fSold").checked, featured: $("fFeatured").checked, howto: $("fHow").value.trim()
   });
   if (formPhotoIsNew) p._newPhoto = formPhoto;
   else { delete p._newPhoto; if (!formPhoto) p.photo = ""; }
@@ -214,12 +237,22 @@ $("publishBtn").onclick = async () => {
       files.push({path, sha});
       p.photo = path; delete p._newPhoto;
     }
-    const keep = new Set(out.map(p => p.photo).filter(Boolean));
-    const deletes = original.products.map(p => p.photo).filter(ph => ph && ph.startsWith("img/") && !keep.has(ph));
+    const outSettings = clone(draftSettings);
+    if (outSettings._newHeroPhoto) {
+      setStatus("Subiendo foto de portada…");
+      const {sha} = await api("/api/blob", {content: outSettings._newHeroPhoto.split(",")[1]});
+      const path = `img/hero-${Date.now().toString(36)}.jpg`;
+      files.push({path, sha});
+      outSettings.heroPhoto = path; delete outSettings._newHeroPhoto;
+    }
+    const keep = new Set(out.map(p => p.photo).filter(Boolean).concat(outSettings.heroPhoto || []));
+    const deletes = original.products.map(p => p.photo).concat(original.settings.heroPhoto || [])
+      .filter(ph => ph && ph.startsWith("img/") && !keep.has(ph));
     setStatus("Guardando…");
-    await api("/api/save", {data: {products: out, settings: draftSettings}, files, deletes});
-    draft = out;
-    original = {products: clone(out), settings: clone(draftSettings)};
+    await api("/api/save", {data: {products: out, settings: outSettings}, files, deletes});
+    draft = out; draftSettings = outSettings;
+    original = {products: clone(out), settings: clone(outSettings)};
+    setHeroPreview();
     dirty = false;
     renderAdminList();
     setStatus("¡Guardado! La tienda se actualiza en 1 minuto más o menos.");
