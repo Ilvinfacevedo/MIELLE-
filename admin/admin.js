@@ -154,13 +154,16 @@ function setTab(t){
   tab = t;
   $("tabProducts").setAttribute("aria-pressed", t === "products");
   $("tabSettings").setAttribute("aria-pressed", t === "settings");
+  $("tabSale").setAttribute("aria-pressed", t === "sale");
+  $("saleView").hidden = t !== "sale";
   $("pform").hidden = true;
   $("listView").hidden = t !== "products";
   $("settingsView").hidden = t !== "settings";
   $("newProduct").hidden = t !== "products";
-  $("listFoot").hidden = false;
+  $("listFoot").hidden = t === "sale";
 }
 $("tabProducts").onclick = () => setTab("products");
+$("tabSale").onclick = () => { setTab("sale"); setStatus(""); };
 $("tabSettings").onclick = () => { fillHeroProducts(); setTab("settings"); };
 
 /* ---------- Product form ---------- */
@@ -239,7 +242,9 @@ $("pform").addEventListener("submit", e => {
 $("newProduct").onclick = () => openForm(null);
 
 /* ---------- Save to GitHub ---------- */
-$("publishBtn").onclick = async () => {
+$("publishBtn").onclick = () => save();
+// Saves draft products and settings to GitHub. Returns true on success.
+async function save(okMsg){
   if (tab === "settings") readSettings();
   $("publishBtn").disabled = true;
   try {
@@ -272,11 +277,78 @@ $("publishBtn").onclick = async () => {
     setHeroPreview();
     dirty = false;
     renderAdminList();
-    setStatus("¡Guardado! La tienda se actualiza en 1 minuto más o menos.");
+    setStatus(okMsg || "¡Guardado! La tienda se actualiza en 1 minuto más o menos.");
+    return true;
   } catch (err) {
     if (err.status === 401) setStatus("Tu sesión expiró. Recarga la página y vuelve a entrar.", true);
     else if (err.status === 409) setStatus("Hubo otro guardado al mismo tiempo. Toca \"Guardar cambios\" otra vez.", true);
     else setStatus("No se pudo guardar: " + err.message, true);
     $("publishBtn").disabled = false;
+    return false;
   }
+}
+
+/* ---------- Confirm a sale from the WhatsApp order message ---------- */
+const norm = t => String(t || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+let saleMatches = null, saleOrder = "";
+
+// Order lines look like "• 2 x e.l.f. Glow Reviver Lip Oil (Pink Quartz) — RD$1,500".
+function parseOrder(text){
+  const order = (text.match(/Pedido:\s*\*?\s*(MI-\d{6}-\d{4})/i) || [])[1] || "";
+  const keys = draft.map(p => ({p, full: norm(`${p.brand || ""} ${p.name}`), name: norm(p.name)}));
+  const items = [], unknown = [];
+  text.split(/\r?\n/).forEach(line => {
+    const m = line.match(/^\s*[•·\-*]\s*(\d+)\s*[x×]\s*(.+)$/i);
+    if (!m) return;
+    const qty = Number(m[1]);
+    const label = m[2].replace(/\s+[—–-]\s+(RD\$|precio).*$/i, "").trim();
+    const bare = norm(label.replace(/\s*\([^)]*\)\s*$/, ""));
+    const hit = keys
+      .filter(k => bare === k.full || bare.startsWith(k.full) || bare === k.name || bare.endsWith(" " + k.name) || bare.startsWith(k.name))
+      .sort((a, b) => b.full.length - a.full.length)[0];
+    if (!hit) { unknown.push(label); return; }
+    const prev = items.find(i => i.p.id === hit.p.id);
+    if (prev) prev.qty += qty; else items.push({p: hit.p, qty});
+  });
+  return {order, items, unknown};
+}
+
+$("saleCheck").onclick = () => {
+  const text = $("saleText").value;
+  const {order, items, unknown} = parseOrder(text);
+  saleMatches = items; saleOrder = order;
+  const done = order && (draftSettings.confirmedOrders || []).includes(order);
+  let h = "";
+  if (!items.length && !unknown.length) {
+    h = `<p class="status err">No encontré productos en el mensaje. Copia el mensaje completo del pedido, incluidas las líneas que empiezan con •.</p>`;
+  } else {
+    h += `<div class="summary"><h4>Pedido</h4><span>${order ? esc(order) : "Sin número de pedido"}</span></div>`;
+    if (done) h += `<p class="notice">Este pedido ya se confirmó antes. Si lo confirmas otra vez, se descuenta de nuevo.</p>`;
+    if (items.length) h += `<ul class="alist">${items.map(({p, qty}) => {
+      const tracked = hasStock(p), now = Number(p.stock), after = Math.max(0, now - qty);
+      return `<li class="arow" style="grid-template-columns:56px 1fr">
+        <div class="thumb">${photoURL(p) ? `<img src="${esc(photoURL(p))}" alt="">` : drawing(p)}</div>
+        <div class="info"><b>${qty} × ${esc(p.name)}</b><span>${tracked ? `Quedan ${now} → quedarán <strong>${after}</strong>${after === 0 ? " (se marca agotado)" : ""}${qty > now ? " · ojo: pidieron más de lo que había" : ""}` : "Sin control de cantidad: no cambia"}</span></div>
+      </li>`;}).join("")}</ul>`;
+    if (unknown.length) h += `<p class="status err">No reconocí: ${unknown.map(esc).join(", ")}. Revisa que el producto siga existiendo con el mismo nombre.</p>`;
+    const changes = items.filter(i => hasStock(i.p)).length;
+    h += changes
+      ? `<button class="btn" type="button" id="saleConfirm">Confirmar venta y descontar</button>`
+      : `<p class="hint">Ninguno de estos productos tiene cantidad disponible configurada, así que no hay nada que descontar.</p>`;
+  }
+  $("saleResult").innerHTML = h; $("saleResult").hidden = false;
 };
+
+$("saleResult").addEventListener("click", async e => {
+  if (!e.target.closest("#saleConfirm") || !saleMatches) return;
+  const btn = e.target.closest("#saleConfirm"); btn.disabled = true;
+  saleMatches.forEach(({p, qty}) => {
+    const d = draft.find(x => x.id === p.id);
+    if (d && hasStock(d)) d.stock = Math.max(0, Number(d.stock) - qty);
+  });
+  if (saleOrder) draftSettings.confirmedOrders = [saleOrder, ...(draftSettings.confirmedOrders || []).filter(o => o !== saleOrder)].slice(0, 300);
+  markDirty();
+  const ok = await save(`¡Venta ${saleOrder || ""} confirmada! La cantidad disponible ya se actualizó.`);
+  if (ok) { $("saleText").value = ""; $("saleResult").hidden = true; saleMatches = null; renderAdminList(); }
+  else btn.disabled = false;
+});

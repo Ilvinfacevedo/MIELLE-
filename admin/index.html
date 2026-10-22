@@ -40,8 +40,19 @@
   <div class="tabs" role="group" aria-label="Sección">
     <button class="chip" type="button" id="tabProducts" aria-pressed="true">Productos</button>
     <button class="chip" type="button" id="tabSettings" aria-pressed="false">Portada y envíos</button>
+    <button class="chip" type="button" id="tabSale" aria-pressed="false">Confirmar venta</button>
   </div>
   <p class="status" id="status" role="status"></p>
+
+  <div id="saleView" class="view pform" hidden>
+    <div class="field">
+      <label for="saleText">Pega aquí el mensaje del pedido que te llegó por WhatsApp</label>
+      <textarea id="saleText" style="min-height:180px" placeholder="*Nuevo pedido MIELLE* 🎀&#10;Pedido: MI-261022-6651&#10;...&#10;• 2 x e.l.f. Sheer For It Blush Tint — RD$1,500"></textarea>
+      <small>Hazlo cuando ya recibiste el pago. Solo se descuenta la cantidad disponible; no se guardan los datos de la clienta.</small>
+    </div>
+    <button class="btn ghost" type="button" id="saleCheck" style="justify-self:start">Revisar pedido</button>
+    <div id="saleResult" class="view" hidden></div>
+  </div>
 
   <div id="listView" class="view">
     <ul class="alist" id="adminList"></ul>
