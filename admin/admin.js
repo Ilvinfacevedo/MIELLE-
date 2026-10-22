@@ -9,6 +9,7 @@ const photoURL = p => p._newPhoto || (p.photo ? (/^(https?:|data:|\/)/.test(p.ph
 let password = "";
 let original = null, draft = null, draftSettings = null;
 let editing = null, formPhoto = "", formPhotoIsNew = false, dirty = false, tab = "products";
+const hasStock = p => p.stock !== undefined && p.stock !== null && p.stock !== "";
 const heroURL = s => s._newHeroPhoto || (s.heroPhoto ? "/" + s.heroPhoto : "");
 
 function setStatus(msg, err){ $("status").textContent = msg; $("status").classList.toggle("err", !!err); }
@@ -65,7 +66,7 @@ function renderAdminList(){
   if (!draft.length) { $("adminList").innerHTML = `<li class="empty">Aún no hay productos. Toca "Nuevo producto".</li>`; return; }
   $("adminList").innerHTML = draft.map((p, i) => `<li class="arow" data-i="${i}">
     <div class="thumb">${photoURL(p) ? `<img src="${esc(photoURL(p))}" alt="">` : drawing(p)}</div>
-    <div class="info"><b>${esc(p.name)}</b><span>${esc(p.brand)} · ${p.price ? money(p.price) : "Precio por DM"}${p.featured ? " · ★ Más pedido" : ""}${p.sold ? " · Agotado" : ""}</span></div>
+    <div class="info"><b>${esc(p.name)}</b><span>${esc(p.brand)} · ${p.price ? money(p.price) : "Precio por DM"}${hasStock(p) ? " · Quedan " + p.stock : ""}${p.badge === "top" || (!p.badge && p.featured) ? " · ★ Más vendido" : p.badge === "nuevo" ? " · Nuevo" : ""}${p.sold || (hasStock(p) && Number(p.stock) <= 0) ? " · Agotado" : ""}</span></div>
     <div class="acts">
       <button class="icon-btn" type="button" data-act="top" aria-label="Poner de primero" title="Poner de primero" ${i === 0 ? "disabled" : ""}>⤒</button>
       <button class="icon-btn" type="button" data-act="up" aria-label="Subir" ${i === 0 ? "disabled" : ""}>↑</button>
@@ -102,8 +103,16 @@ function setHeroPreview(){
   $("heroPrev").innerHTML = src ? `<img src="${esc(src)}" alt="Foto de portada">` : "Sin foto";
   $("removeHero").hidden = !src;
 }
+function fillHeroProducts(){
+  $("sHeroProduct").innerHTML = `<option value="">Automático (el más reciente)</option>` +
+    draft.map(p => `<option value="${esc(p.id)}">${esc(p.brand ? p.brand + " · " : "")}${esc(p.name)}</option>`).join("");
+  $("sHeroProduct").value = draft.some(p => p.id === draftSettings.heroProduct) ? draftSettings.heroProduct : "";
+}
 function renderSettings(){
   $("sAnnounce").value = draftSettings.announcement ?? "";
+  fillHeroProducts();
+  $("sFree").value = draftSettings.freeShipFrom ?? "";
+  $("sLow").value = draftSettings.lowStockAt ?? 3;
   $("sHeroTitle").value = draftSettings.heroTitle || "";
   $("sHeroText").value = draftSettings.heroText || "";
   setHeroPreview();
@@ -114,6 +123,10 @@ function renderSettings(){
 }
 function readSettings(){
   draftSettings.announcement = $("sAnnounce").value.trim();
+  draftSettings.heroProduct = $("sHeroProduct").value;
+  const free = $("sFree").value.replace(/[^\d]/g, ""), low = $("sLow").value.replace(/[^\d]/g, "");
+  draftSettings.freeShipFrom = free ? Number(free) : null;
+  draftSettings.lowStockAt = low ? Number(low) : 3;
   draftSettings.heroTitle = $("sHeroTitle").value.trim();
   draftSettings.heroText = $("sHeroText").value.trim();
   draftSettings.whatsapp = $("sWa").value.trim();
@@ -125,6 +138,7 @@ function readSettings(){
       note: r.querySelector('[data-k="note"]').value.trim(), branch: r.querySelector('[data-k="branch"]').checked};
   }).filter(s => s.name);
 }
+$("settingsView").addEventListener("change", e => { if (e.target.tagName === "SELECT") { readSettings(); markDirty(); } });
 $("settingsView").addEventListener("input", e => { if (e.target.type === "file") return; readSettings(); markDirty(); });
 $("sHeroPhoto").addEventListener("change", async e => {
   const f = e.target.files && e.target.files[0]; if (!f) return;
@@ -147,7 +161,7 @@ function setTab(t){
   $("listFoot").hidden = false;
 }
 $("tabProducts").onclick = () => setTab("products");
-$("tabSettings").onclick = () => setTab("settings");
+$("tabSettings").onclick = () => { fillHeroProducts(); setTab("settings"); };
 
 /* ---------- Product form ---------- */
 function toneRow(name, color){
@@ -167,7 +181,7 @@ function openForm(i){
   $("formTitle").textContent = i == null ? "Nuevo producto" : "Editar producto";
   $("fBrand").value = p.brand || ""; $("fName").value = p.name || ""; $("fKind").value = p.kind || "";
   $("fPrice").value = p.price ?? ""; $("fCat").value = p.cat || "maquillaje"; $("fDesc").value = p.desc || "";
-  $("fSold").checked = !!p.sold; $("fFeatured").checked = !!p.featured; $("fHow").value = p.howto || ""; $("fPhoto").value = "";
+  $("fSold").checked = !!p.sold; $("fBadge").value = p.badge || (p.featured ? "top" : ""); $("fStock").value = hasStock(p) ? p.stock : ""; $("fHow").value = p.howto || ""; $("fPhoto").value = "";
   $("toneList").innerHTML = ""; (p.tones || []).forEach(([n,c]) => toneRow(n, c));
   setPhotoPreview(photoURL(p), !!p._newPhoto);
   $("listView").hidden = true; $("settingsView").hidden = true; $("listFoot").hidden = true; $("pform").hidden = false;
@@ -207,12 +221,15 @@ $("pform").addEventListener("submit", e => {
   const tones = [...$("toneList").querySelectorAll(".tone-row")]
     .map(r => [r.querySelector("input[type=text]").value.trim(), r.querySelector("input[type=color]").value])
     .filter(t => t[0]);
-  const base = editing == null ? {id: "p" + Date.now().toString(36), icon: "bottle", photo: ""} : draft[editing];
+  const base = editing == null ? {id: "p" + Date.now().toString(36), icon: "bottle", photo: "", createdAt: Date.now()} : draft[editing];
+  const stockRaw = String($("fStock").value).replace(/[^\d]/g, "");
   const p = Object.assign({}, base, {
     brand: $("fBrand").value.trim(), name, kind: $("fKind").value.trim(),
     cat: $("fCat").value, price: raw ? Number(raw) : null, desc: $("fDesc").value.trim(),
-    tones, sold: $("fSold").checked, featured: $("fFeatured").checked, howto: $("fHow").value.trim()
+    tones, sold: $("fSold").checked, badge: $("fBadge").value, howto: $("fHow").value.trim(),
+    stock: stockRaw === "" ? null : Number(stockRaw)
   });
+  delete p.featured;
   if (formPhotoIsNew) p._newPhoto = formPhoto;
   else { delete p._newPhoto; if (!formPhoto) p.photo = ""; }
   if (editing == null) draft.unshift(p); else draft[editing] = p;

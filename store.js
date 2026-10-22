@@ -19,7 +19,10 @@ const DEFAULT_SETTINGS = {
   announcement: "🚚 Enviamos a toda República Dominicana",
   heroTitle: "",
   heroText: "",
-  heroPhoto: ""
+  heroPhoto: "",
+  heroProduct: "",
+  freeShipFrom: null,
+  lowStockAt: 3
 };
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt = n => Number(n).toLocaleString("en-US");
@@ -52,17 +55,33 @@ function drawing(p, cls){
   return `<svg class="${cls}" viewBox="0 0 60 100" aria-hidden="true"><use href="#i-${esc(p.icon || "bottle")}"/></svg>`;
 }
 const firstTone = p => (p.tones && p.tones[0] ? p.tones[0][0] : "");
+const hasStock = p => p.stock !== undefined && p.stock !== null && p.stock !== "";
+const isOut = p => !!p.sold || (hasStock(p) && Number(p.stock) <= 0);
+const maxQty = p => (hasStock(p) ? Math.max(0, Number(p.stock)) : 99);
+const lowLeft = p => (!isOut(p) && hasStock(p) && Number(p.stock) <= Number(settings.lowStockAt ?? 3) ? Number(p.stock) : null);
+const isTop = p => p.badge === "top" || (!p.badge && p.featured);
+// Newer admin products carry createdAt; ids made by the panel ("p" + base-36 time) also encode it.
+const createdOf = p => p.createdAt || (/^p[a-z0-9]{7,}$/.test(p.id) ? parseInt(p.id.slice(1), 36) : 0);
+function badgeOf(p){
+  if (isOut(p)) return ["Agotado", "dark"];
+  const left = lowLeft(p);
+  if (left != null) return [left === 1 ? "¡Última unidad!" : `¡Quedan ${left}!`, "warn"];
+  if (isTop(p)) return ["Más vendido", ""];
+  if (p.badge === "nuevo") return ["Nuevo", "new"];
+  return null;
+}
 function priceHTML(p){
   return p.price ? `<span class="price"><small>RD$</small>${fmt(p.price)}</span>` : `<span class="price ask">Precio por DM</span>`;
 }
 function card(p, extra){
   const tones = p.tones && p.tones.length
     ? `<span class="dots" aria-label="${p.tones.length} tonos">${p.tones.slice(0, 5).map(([, c]) => `<i style="background:${esc(c)}"></i>`).join("")}<em>${p.tones.length} tonos</em></span>` : "";
-  const badge = p.sold ? `<span class="badge dark">Agotado</span>` : p.featured ? `<span class="badge">Más pedido</span>` : "";
+  const b = badgeOf(p);
+  const badge = b ? `<span class="badge ${b[1]}">${b[0]}</span>` : "";
   const visual = photoURL(p)
     ? `<img src="${esc(photoURL(p))}" alt="${esc(p.brand)} ${esc(p.name)}" loading="lazy">`
     : drawing(p, "draw");
-  const add = p.sold ? "" : `<button class="plus" type="button" data-add="${esc(p.id)}" aria-label="Agregar ${esc(p.name)} al carrito">+</button>`;
+  const add = isOut(p) ? "" : `<button class="plus" type="button" data-add="${esc(p.id)}" aria-label="Agregar ${esc(p.name)} al carrito">+</button>`;
   return `<article class="card ${extra || ""}">
     <button class="card-hit" type="button" data-open="${esc(p.id)}" aria-label="Ver ${esc(p.brand)} ${esc(p.name)}">
       <span class="visual">${visual}${badge}</span>
@@ -82,28 +101,50 @@ function render(list){
   });
 }
 function renderRail(list){
-  let picks = list.filter(p => p.featured && !p.sold);
-  if (!picks.length) picks = list.filter(p => !p.sold).sort((a, b) => (photoURL(b) ? 1 : 0) - (photoURL(a) ? 1 : 0));
+  let picks = list.filter(p => isTop(p) && !isOut(p));
+  if (!picks.length) picks = list.filter(p => !isOut(p)).sort((a, b) => (photoURL(b) ? 1 : 0) - (photoURL(a) ? 1 : 0));
   picks = picks.slice(0, 8);
   $("destacados").hidden = !picks.length;
   $("rail").innerHTML = picks.map(p => card(p, "rail-card")).join("");
 }
+function heroProduct(){
+  if (settings.heroProduct) { const p = products.find(x => x.id === settings.heroProduct); if (p) return p; }
+  const avail = products.filter(p => !isOut(p));
+  if (!avail.length) return null;
+  const dated = avail.filter(p => createdOf(p) > 0).sort((a, b) => createdOf(b) - createdOf(a));
+  // New products go to the top of the list in the panel, so the first one is the newest otherwise.
+  return dated[0] || avail[0];
+}
 function renderHero(){
   if (settings.announcement) $("announceText").textContent = settings.announcement;
   $("announce").hidden = !settings.announcement;
-  if (settings.heroTitle) $("heroTitle").textContent = settings.heroTitle;
-  if (settings.heroText) $("heroText").textContent = settings.heroText;
-  const hero = settings.heroPhoto ? photoURL({photo: settings.heroPhoto}) : "";
-  const shots = products.filter(p => photoURL(p)).slice(0, 3);
-  if (hero) $("heroArt").innerHTML = `<img class="hero-img" src="${esc(hero)}" alt="Productos de Mielle">`;
-  else if (shots.length) $("heroArt").innerHTML = `<div class="collage n${shots.length}">${shots.map(p => `<img src="${esc(photoURL(p))}" alt="${esc(p.brand)} ${esc(p.name)}">`).join("")}</div>`;
+  const hp = heroProduct();
+  const custom = settings.heroPhoto ? photoURL({photo: settings.heroPhoto}) : "";
+  if (hp) {
+    $("heroEyebrow").textContent = `Nuevo en Mielle${hp.brand ? " · " + hp.brand : ""}`;
+    $("heroTitle").textContent = settings.heroTitle || hp.name;
+    $("heroText").textContent = settings.heroText || hp.desc || "";
+    $("heroText").hidden = !(settings.heroText || hp.desc);
+    $("heroPrice").innerHTML = priceHTML(hp); $("heroPrice").hidden = false;
+    $("heroCta").hidden = false; $("heroCta").dataset.open = hp.id;
+    $("heroArt").dataset.open = hp.id; $("heroArt").classList.add("clickable");
+    const img = custom || photoURL(hp);
+    $("heroArt").innerHTML = img
+      ? `<img class="hero-img" src="${esc(img)}" alt="${esc(hp.brand)} ${esc(hp.name)}"><span class="badge new hero-badge">Nuevo</span>`
+      : `<div class="hero-fallback">${drawing(hp, "draw hero-draw")}<span class="hero-word">${esc(hp.brand || "MIELLE")}</span></div><span class="badge new hero-badge">Nuevo</span>`;
+  } else {
+    if (settings.heroTitle) $("heroTitle").textContent = settings.heroTitle;
+    if (settings.heroText) $("heroText").textContent = settings.heroText;
+    if (custom) $("heroArt").innerHTML = `<img class="hero-img" src="${esc(custom)}" alt="Productos de Mielle">`;
+  }
 }
+$("heroCta").addEventListener("click", () => { const p = products.find(x => x.id === $("heroCta").dataset.open); if (p) openSheet(p); });
+$("heroArt").addEventListener("click", () => { const p = products.find(x => x.id === $("heroArt").dataset.open); if (p) openSheet(p); });
 document.querySelectorAll("#cats .chip").forEach(b => b.addEventListener("click", () => { filter = b.dataset.f; render(products); }));
 
 function quickAdd(p){
   if (p.tones && p.tones.length) { openSheet(p); return; }
-  addToCart(p.id, "");
-  toast(`Agregado: ${p.name}`);
+  if (addToCart(p.id, "")) toast(`Agregado: ${p.name}`);
 }
 function onCatalogClick(e){
   const a = e.target.closest("[data-add]");
@@ -130,8 +171,11 @@ function openSheet(p){
   $("sheetTonesField").hidden = !hasTones;
   if (hasTones) renderSheetTones();
   $("qVal").textContent = 1;
-  $("sheetBuy").hidden = !!p.sold; $("sheetNow").hidden = !!p.sold;
-  if (p.sold) $("sheetPrice").insertAdjacentHTML("beforeend", ` <span class="badge dark">Agotado</span>`);
+  $("sheetBuy").hidden = isOut(p); $("sheetNow").hidden = isOut(p);
+  if (isOut(p)) $("sheetPrice").insertAdjacentHTML("beforeend", ` <span class="badge dark">Agotado</span>`);
+  const left = lowLeft(p);
+  $("sheetStock").textContent = left == null ? "" : left === 1 ? "¡Solo queda 1 unidad!" : `¡Solo quedan ${left} unidades!`;
+  $("sheetStock").hidden = left == null;
   $("sheet").hidden = false; document.body.style.overflow = "hidden";
   $("sheet").querySelector(".sheet-box").scrollTop = 0;
   $("closeSheet").focus();
@@ -147,12 +191,15 @@ $("sheetTones").addEventListener("click", e => {
   toneSel[sheetProduct.id] = t.dataset.tone; renderSheetTones();
 });
 $("qMinus").onclick = () => { sheetQty = Math.max(1, sheetQty - 1); $("qVal").textContent = sheetQty; };
-$("qPlus").onclick = () => { sheetQty = Math.min(20, sheetQty + 1); $("qVal").textContent = sheetQty; };
+$("qPlus").onclick = () => {
+  const room = sheetProduct ? maxQty(sheetProduct) - inCart(sheetProduct.id) : 20;
+  sheetQty = Math.max(1, Math.min(20, room, sheetQty + 1)); $("qVal").textContent = sheetQty;
+};
 function addFromSheet(){
   const p = sheetProduct; if (!p) return;
   const tone = toneSel[p.id] || "";
-  for (let i = 0; i < sheetQty; i++) addToCart(p.id, tone);
-  toast(`Agregado: ${sheetQty > 1 ? sheetQty + " × " : ""}${p.name}${tone ? " · " + tone : ""}`);
+  const added = addToCart(p.id, tone, sheetQty);
+  if (added) toast(`Agregado: ${added > 1 ? added + " × " : ""}${p.name}${tone ? " · " + tone : ""}`);
 }
 $("sheetAdd").onclick = () => { addFromSheet(); closeSheet(); };
 $("sheetNow").onclick = () => { addFromSheet(); closeSheet(); openCart(); };
@@ -169,11 +216,29 @@ let step = 0; // 0 cart, 1 datos, 2 envío y pago, 3 confirmar, 4 listo
 let lastOrder = null;
 
 function saveCart(){ local.set("mielle-cart", cart); updateCount(); }
-function updateCount(){ $("cartCount").textContent = cart.reduce((s, i) => s + i.qty, 0); }
-function addToCart(id, tone){
+const inCart = id => cart.filter(i => i.id === id).reduce((s, i) => s + i.qty, 0);
+function updateCount(){
+  const n = cart.reduce((s, i) => s + i.qty, 0);
+  $("cartCount").textContent = n;
+  $("cartBarN").textContent = n;
+  const c = calc();
+  $("cartBarTotal").textContent = c.subtotal ? money(c.subtotal) : "";
+  $("cartBar").hidden = !n || !$("cart").hidden;
+}
+function bump(){
+  [$("cartCount"), $("cartBar")].forEach(el => { el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump"); });
+}
+// Adds up to n units without going over the stock; returns how many were added.
+function addToCart(id, tone, n = 1){
+  const p = products.find(x => x.id === id); if (!p || isOut(p)) return 0;
+  const room = maxQty(p) - inCart(id);
+  const add = Math.min(n, room);
+  if (add <= 0) { toast(`Solo hay ${maxQty(p)} disponible${maxQty(p) === 1 ? "" : "s"} de ${p.name}`); return 0; }
   const hit = cart.find(i => i.id === id && i.tone === tone);
-  if (hit) hit.qty++; else cart.push({id, tone, qty: 1});
-  saveCart();
+  if (hit) hit.qty += add; else cart.push({id, tone, qty: add});
+  saveCart(); bump();
+  if (add < n) toast(`Solo quedaban ${add} de ${p.name}`);
+  return add;
 }
 function lines(){
   return cart.map(i => {
@@ -187,23 +252,62 @@ function calc(){
   const subtotal = ls.reduce((s, l) => s + (l.total || 0), 0);
   const unpriced = ls.some(l => l.total == null);
   const ship = currentShip();
-  const shipCost = ship && ship.cost != null ? Number(ship.cost) : null;
-  return {ls, subtotal, unpriced, ship, shipCost, total: subtotal + (shipCost || 0)};
+  const free = freeShip(subtotal);
+  const shipCost = ship ? (free ? 0 : ship.cost != null ? Number(ship.cost) : null) : null;
+  return {ls, subtotal, unpriced, ship, shipCost, free, total: subtotal + (shipCost || 0)};
+}
+const freeFrom = () => Number(settings.freeShipFrom) || 0;
+const freeShip = subtotal => freeFrom() > 0 && subtotal >= freeFrom();
+function shipLabel(s, subtotal){
+  if (freeShip(subtotal)) return "Gratis";
+  return s.cost == null || s.cost === "" ? "A cotizar" : Number(s.cost) === 0 ? "Gratis" : money(s.cost);
+}
+function renderFreeShip(c){
+  const goal = freeFrom();
+  $("freeShip").hidden = !goal || !c.ls.length;
+  if (!goal) return;
+  const pct = Math.min(100, Math.round(c.subtotal / goal * 100));
+  $("freeShip").innerHTML = (c.subtotal >= goal
+    ? `<p><b>🎉 ¡Tienes envío gratis!</b></p>`
+    : `<p>Te faltan <b>${money(goal - c.subtotal)}</b> para el <b>envío gratis</b></p>`) +
+    `<div class="fs-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><div class="fs-fill" style="width:${pct}%"></div></div>`;
+}
+function suggestions(n = 3){
+  const ids = new Set(cart.map(i => i.id));
+  const cats = new Set(lines().map(l => l.p.cat));
+  const sub = calc().subtotal, gap = freeFrom() && sub < freeFrom() ? freeFrom() - sub : 0;
+  return products
+    .filter(p => !ids.has(p.id) && !isOut(p) && p.price)
+    .map(p => ({p, score: (cats.has(p.cat) ? 2 : 0) + (isTop(p) ? 1 : 0) + (gap && p.price >= gap ? 1.5 : 0) + (photoURL(p) ? 0.5 : 0)}))
+    .sort((a, b) => b.score - a.score).slice(0, n).map(x => x.p);
+}
+function upsellHTML(title){
+  const list = suggestions();
+  if (!list.length) return "";
+  return `<h3>${title}</h3><div class="up-list">${list.map(p => `<div class="up-item">
+    <div class="thumb">${photoURL(p) ? `<img src="${esc(photoURL(p))}" alt="">` : drawing(p, "")}</div>
+    <div class="info"><b>${esc(p.name)}</b><span>${esc(p.brand)} · ${money(p.price)}</span></div>
+    <button class="btn ghost sm" type="button" data-up="${esc(p.id)}">+ Agregar</button>
+  </div>`).join("")}</div>`;
 }
 function totalsHTML(c, withShip){
   let h = `<div><span>Subtotal</span><span>${money(c.subtotal)}</span></div>`;
   if (withShip) h += `<div><span>Envío${c.ship ? " · " + esc(c.ship.name) : ""}</span><span>${c.shipCost == null ? "A confirmar" : c.shipCost === 0 ? "Gratis" : money(c.shipCost)}</span></div>`;
+  else if (c.free) h += `<div><span>Envío</span><span>Gratis</span></div>`;
   h += `<div class="grand"><span>Total</span><span>${money(withShip ? c.total : c.subtotal)}</span></div>`;
   const notes = [];
   if (c.unpriced) notes.push("Algunos productos tienen precio por confirmar.");
   if (withShip && c.ship && c.shipCost == null) notes.push("El costo de envío te lo confirmamos por WhatsApp.");
-  if (!withShip) notes.push("El envío se calcula en el siguiente paso.");
+  if (!withShip && !c.free) notes.push("El envío se calcula en el siguiente paso.");
   if (notes.length) h += `<div class="note">${notes.join(" ")}</div>`;
   return h;
 }
 
 function renderCartList(){
   const c = calc();
+  renderFreeShip(c);
+  const up = c.ls.length ? upsellHTML("Completa tu pedido") : "";
+  $("upsellCart").innerHTML = up; $("upsellCart").hidden = !up;
   if (!c.ls.length) {
     $("cartList").innerHTML = `<li class="empty">Tu carrito está vacío.</li>`;
     $("cartTotals").innerHTML = "";
@@ -223,14 +327,16 @@ function renderCartList(){
 $("cartList").addEventListener("click", e => {
   const b = e.target.closest("[data-q]"); if (!b) return;
   const i = Number(b.closest("li").dataset.i);
-  cart[i].qty += Number(b.dataset.q);
+  const d = Number(b.dataset.q), p = products.find(x => x.id === cart[i].id);
+  if (d > 0 && p && inCart(p.id) >= maxQty(p)) { toast(`Solo hay ${maxQty(p)} disponible${maxQty(p) === 1 ? "" : "s"}`); return; }
+  cart[i].qty += d;
   if (cart[i].qty <= 0) cart.splice(i, 1);
   saveCart(); renderCartList(); setStep(0);
 });
 
 function fillOptions(){
   $("cProv").innerHTML = `<option value="">Elige tu provincia</option>` + PROVINCES.map(p => `<option>${esc(p)}</option>`).join("");
-  $("shipOpts").innerHTML = settings.shipping.map((s, i) => `<label class="opt"><input type="radio" name="ship" value="${esc(s.id)}"><span><b>${esc(s.name)}</b>${s.note ? `<small>${esc(s.note)}</small>` : ""}</span><span class="cost">${s.cost == null || s.cost === "" ? "A cotizar" : Number(s.cost) === 0 ? "Gratis" : money(s.cost)}</span></label>`).join("");
+  $("shipOpts").innerHTML = settings.shipping.map((s, i) => `<label class="opt"><input type="radio" name="ship" value="${esc(s.id)}"><span><b>${esc(s.name)}</b>${s.note ? `<small>${esc(s.note)}</small>` : ""}</span><span class="cost" data-ship="${esc(s.id)}">${shipLabel(s, 0)}</span></label>`).join("");
   $("payOpts").innerHTML = settings.payments.map(p => `<label class="opt"><input type="radio" name="pay" value="${esc(p)}"><span><b>${esc(p)}</b></span><span></span></label>`).join("");
 }
 $("shipOpts").addEventListener("change", () => { const s = currentShip(); $("branchField").hidden = !(s && s.branch); });
@@ -251,14 +357,24 @@ function setStep(n){
   $("nextBtn").disabled = n === 0 && empty;
   $("nextBtn").textContent = n === 0 ? "Hacer pedido" : n === 3 ? "Confirmar pedido" : "Continuar";
   cstatus("");
+  if (n === 2) { const sub = calc().subtotal; settings.shipping.forEach(s => { const el = document.querySelector(`[data-ship="${CSS.escape(s.id)}"]`); if (el) el.textContent = shipLabel(s, sub); }); }
   $("cart").querySelector(".drawer").scrollTop = 0;
 }
-function openCart(){ renderCartList(); setStep(0); $("cart").hidden = false; document.body.style.overflow = "hidden"; }
+function openCart(){ renderCartList(); setStep(0); $("cart").hidden = false; document.body.style.overflow = "hidden"; updateCount(); }
 function closeCart(){
-  $("cart").hidden = true; document.body.style.overflow = "";
+  $("cart").hidden = true; document.body.style.overflow = ""; updateCount();
   if (step === 4) { lastOrder = null; setStep(0); }
 }
 $("openCart").onclick = openCart;
+$("cartBar").onclick = openCart;
+$("cart").addEventListener("click", e => {
+  const b = e.target.closest("[data-up]"); if (!b) return;
+  const p = products.find(x => x.id === b.dataset.up); if (!p) return;
+  const tone = firstTone(p);
+  if (!addToCart(p.id, tone)) return;
+  toast(`Agregado: ${p.name}${tone ? " · " + tone : ""}`);
+  if (step === 3) renderReview(); else renderCartList();
+});
 $("closeCart").onclick = closeCart;
 $("cart").addEventListener("click", e => { if (e.target === $("cart")) closeCart(); });
 $("backBtn").onclick = () => { if (step === 0 || step === 4) closeCart(); else setStep(step - 1); };
@@ -295,6 +411,7 @@ function renderReview(){
     <div class="summary"><h4>Entrega</h4><span>${esc(cu.addr)}, ${esc(cu.city)}, ${esc(cu.prov)}</span>${cu.ref ? `<span>Ref.: ${esc(cu.ref)}</span>` : ""}<span>${esc(c.ship.name)}${c.ship.branch && cu.branch ? " · Sucursal: " + esc(cu.branch) : ""}</span></div>
     <div class="summary"><h4>Productos</h4>${c.ls.map(l => `<span>${l.qty} × ${esc(l.p.brand)} ${esc(l.p.name)}${l.tone ? " (" + esc(l.tone) + ")" : ""} — ${l.total == null ? "por confirmar" : money(l.total)}</span>`).join("")}</div>
     <div class="summary"><h4>Pago</h4><span>${esc(cu.pay)}</span>${cu.notes ? `<span>Notas: ${esc(cu.notes)}</span>` : ""}</div>
+    <div class="upsell">${upsellHTML("¿Algo más antes de terminar?")}</div>
     <div class="totals">${totalsHTML(c, true)}</div>`;
 }
 
@@ -341,7 +458,7 @@ function waMessage(o){
   c.ls.forEach(l => L.push(`• ${l.qty} x ${l.p.brand} ${l.p.name}${l.tone ? " (" + l.tone + ")" : ""} — ${l.total == null ? "precio por confirmar" : money(l.total)}`));
   L.push("");
   L.push(`Subtotal: ${money(c.subtotal)}`);
-  L.push(`Envío: ${c.ship.name}${c.ship.branch && cu.branch ? " · Sucursal: " + cu.branch : ""} — ${c.shipCost == null ? "a confirmar" : c.shipCost === 0 ? "gratis" : money(c.shipCost)}`);
+  L.push(`Envío: ${c.ship.name}${c.ship.branch && cu.branch ? " · Sucursal: " + cu.branch : ""} — ${c.shipCost == null ? "a confirmar" : c.shipCost === 0 ? (c.free ? "gratis (envío gratis)" : "gratis") : money(c.shipCost)}`);
   L.push(`*Total: ${money(c.total)}*${c.shipCost == null || c.unpriced ? " (sin incluir montos por confirmar)" : ""}`);
   L.push(`Pago: ${cu.pay}`);
   if (cu.notes) L.push(`Notas: ${cu.notes}`);
@@ -463,7 +580,7 @@ $("shareInvoice").onclick = async () => {
   } catch (e) {
     $("grid").innerHTML = `<p class="empty">No se pudieron cargar los productos. Recarga la página.</p>`;
   }
-  cart = local.get("mielle-cart", []).filter(i => products.some(p => p.id === i.id && !p.sold));
+  cart = local.get("mielle-cart", []).filter(i => products.some(p => p.id === i.id && !isOut(p)));
   render(products);
   renderRail(products);
   renderHero();

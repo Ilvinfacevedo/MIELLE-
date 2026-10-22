@@ -42,12 +42,13 @@
 <header class="hero" id="top">
   <div class="wrap hero-grid">
     <div class="hero-copy">
-      <p class="eyebrow">Beauty &amp; Lifestyle · RD</p>
-      <h1 id="heroTitle">Lo viral de TikTok, ahora en RD</h1>
+      <p class="eyebrow" id="heroEyebrow">Nuevo en Mielle</p>
+      <h1 id="heroTitle">Todo lo que te encanta, en un solo lugar</h1>
       <p class="lead" id="heroText">Maquillaje, cuidado del cabello y fragancias originales. Pide en minutos y recíbelo en todo el país.</p>
+      <div class="hero-price" id="heroPrice" hidden></div>
       <div class="ctas">
-        <a class="btn" href="#catalogo">Comprar ahora</a>
-        <a class="btn ghost" href="https://www.instagram.com/shopmielle_/" target="_blank" rel="noopener">@shopmielle_</a>
+        <button class="btn" type="button" id="heroCta" hidden>Lo quiero</button>
+        <a class="btn ghost" href="#catalogo" id="heroAll">Ver catálogo</a>
       </div>
     </div>
     <div class="hero-art" id="heroArt">
@@ -64,9 +65,17 @@
   </div>
 </header>
 
+<section class="trust" aria-label="Por qué comprar en Mielle">
+  <div class="wrap trust-row">
+    <div class="trust-item"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z"/><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M8.5 12l2.5 2.5 4.5-5"/></svg><span><b>100% originales</b><small>Marcas auténticas</small></span></div>
+    <div class="trust-item"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" d="M3 7h11v9H3zM14 10h4l3 3v3h-7z"/><circle cx="7" cy="17.5" r="1.8" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="17.5" cy="17.5" r="1.8" fill="none" stroke="currentColor" stroke-width="1.7"/></svg><span><b>Envío a toda RD</b><small>Agencia o delivery</small></span></div>
+    <div class="trust-item"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" d="M9 8h6M9 12h6"/></svg><span><b>Factura con tu pedido</b><small>Al instante</small></span></div>
+  </div>
+</section>
+
 <section class="featured" id="destacados" aria-labelledby="featTitle">
   <div class="wrap row-head">
-    <h2 id="featTitle">Lo más pedido</h2>
+    <h2 id="featTitle">Lo más vendido</h2>
     <a href="#catalogo">Ver todo</a>
   </div>
   <div class="rail" id="rail"></div>
@@ -129,6 +138,8 @@
 
 <div class="toast" id="toast" role="status" hidden></div>
 
+<button class="cartbar" id="cartBar" type="button" hidden><span class="cartbar-n" id="cartBarN">0</span><span>Ver carrito</span><b id="cartBarTotal"></b></button>
+
 <!-- Product detail -->
 <div class="panel sheet" id="sheet" hidden>
   <div class="sheet-box" role="dialog" aria-modal="true" aria-labelledby="sheetName">
@@ -139,6 +150,7 @@
       <span class="sheet-brand" id="sheetBrand"></span>
       <h2 id="sheetName"></h2>
       <div class="sheet-price" id="sheetPrice"></div>
+      <p class="stock-note" id="sheetStock" hidden></p>
       <div class="field" id="sheetTonesField"><span class="lbl">Tono: <b id="sheetToneName"></b></span><div class="tones" id="sheetTones" role="group" aria-label="Tono"></div></div>
       <p class="sheet-desc" id="sheetDesc"></p>
       <div class="howto" id="sheetHowWrap"><h3>Cómo usarlo</h3><p id="sheetHow"></p></div>
@@ -147,6 +159,7 @@
         <button class="btn" type="button" id="sheetAdd">Agregar al carrito</button>
       </div>
       <button class="btn ghost" type="button" id="sheetNow">Comprar ahora</button>
+      <ul class="trust-mini"><li>100% original</li><li>Envío a toda RD</li><li>Factura incluida</li></ul>
     </div>
   </div>
 </div>
@@ -166,8 +179,10 @@
     <p class="status" id="cstatus" role="status"></p>
 
     <div class="view" id="vCart">
+      <div class="freeship" id="freeShip" hidden></div>
       <ul class="clist" id="cartList"></ul>
       <div class="totals" id="cartTotals"></div>
+      <div class="upsell" id="upsellCart" hidden></div>
     </div>
 
     <div class="view pform" id="vData" hidden>
