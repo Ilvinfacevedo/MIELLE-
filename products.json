@@ -1,6 +1,23 @@
 {
   "products": [
     {
+      "id": "pmvoetxd2",
+      "icon": "bottle",
+      "photo": "img/pmvoetxd2-mvoeu010.jpg",
+      "createdAt": 1792967961638,
+      "brand": "Maybelline",
+      "name": "Hyaluronic Lip Gloss",
+      "kind": "Labios",
+      "cat": "maquillaje",
+      "price": 750,
+      "desc": "•  Ayuda a mantener los labios hidratados.\n•  Aporta un brillo hermoso.\n•  Deja los labios con apariencia jugosa.\n•  Ayuda a que los labios se sientan suaves.\n•  Ideal para usar solo o sobre tu labial favorito.\n•  Perfecto para llevar en la cartera.",
+      "tones": [],
+      "sold": false,
+      "badge": "nuevo",
+      "howto": "•  Aplica sobre los labios limpios y secos.\n• Desliza el aplicador suavemente por ambos labios.\n• Úsalo solo para un brillo natural o encima de tu labial favorito.\n• Reaplica cuando quieras mantener el brillo.",
+      "stock": null
+    },
+    {
       "id": "p2",
       "brand": "e.l.f.",
       "name": "Monochromatic Multi-Stick",
