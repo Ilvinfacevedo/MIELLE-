@@ -161,7 +161,10 @@ let sheetProduct = null, sheetQty = 1;
 function openSheet(p){
   sheetProduct = p; sheetQty = 1;
   toneSel[p.id] = toneSel[p.id] || firstTone(p);
-  $("sheetPhoto").innerHTML = photoURL(p) ? `<img src="${esc(photoURL(p))}" alt="${esc(p.brand)} ${esc(p.name)}">` : drawing(p, "draw");
+  // The whole photo shows (contain); a blurred copy fills the space around it.
+  $("sheetPhoto").innerHTML = photoURL(p)
+    ? `<img class="sheet-bg" src="${esc(photoURL(p))}" alt="" aria-hidden="true"><img class="sheet-img" src="${esc(photoURL(p))}" alt="${esc(p.brand)} ${esc(p.name)}">`
+    : drawing(p, "draw");
   $("sheetKind").textContent = p.kind || ""; $("sheetKind").hidden = !p.kind;
   $("sheetBrand").textContent = p.brand || "";
   $("sheetName").textContent = p.name;
