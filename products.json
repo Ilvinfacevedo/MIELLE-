@@ -237,28 +237,28 @@
       {
         "id": "s1",
         "name": "Caribe Express",
-        "cost": null,
+        "cost": 250,
         "note": "Retiras en la sucursal de tu provincia",
         "branch": true
       },
       {
         "id": "s2",
         "name": "Vimenpaq",
-        "cost": null,
+        "cost": 350,
         "note": "Retiras en la sucursal de tu provincia",
         "branch": true
       },
       {
         "id": "s3",
         "name": "Metro Pac",
-        "cost": null,
+        "cost": 250,
         "note": "Retiras en la terminal de Metro de tu ciudad",
         "branch": true
       },
       {
         "id": "s4",
         "name": "Domex",
-        "cost": null,
+        "cost": 350,
         "note": "Envío a tu provincia",
         "branch": true
       },
@@ -281,7 +281,7 @@
       "Transferencia bancaria",
       "Efectivo al recibir"
     ],
-    "bank": "",
+    "bank": "Banco Banreservas 9607135828, Banco Pupular 834819708, Qik 1001714321, BHD 32773290019, Promerica 11010500225574",
     "announcement": "🚚 Enviamos a toda República Dominicana",
     "promos": [
       {
@@ -294,6 +294,11 @@
         "expires": "2026-12-31",
         "active": true
       }
-    ]
+    ],
+    "heroProduct": "",
+    "freeShipFrom": null,
+    "lowStockAt": 3,
+    "heroTitle": "",
+    "heroText": ""
   }
 }
