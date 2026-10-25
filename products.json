@@ -1,6 +1,23 @@
 {
   "products": [
     {
+      "id": "pmvnylk7p",
+      "icon": "bottle",
+      "photo": "img/pmvnylk7p-mvnylma4.jpg",
+      "createdAt": 1792940697493,
+      "brand": "",
+      "name": "Camo Liquid Blush",
+      "kind": "Mejillas",
+      "cat": "maquillaje",
+      "price": 900,
+      "desc": "* Rubor líquido de alta pigmentación.\n* Aporta un toque de color natural y luminoso a las mejillas.\n* Su textura ligera facilita la aplicación y difuminación.\n* Permite regular la intensidad del color según la cantidad aplicada.\n* Ofrece un acabado fresco y radiante.\n* Ideal para conseguir desde un look natural hasta uno más intenso.",
+      "tones": [],
+      "sold": false,
+      "badge": "nuevo",
+      "howto": "• Aplicar 1 o 2 gotitas en cada mejilla.\n• Difuminar con brocha, esponja o dedos.\n• Extender suavemente hasta integrar el color.\n• Agregar más producto si deseas mayor intensidad.\n• Sellar con polvo si prefieres un acabado más duradero.",
+      "stock": null
+    },
+    {
       "id": "pmvnyajk5",
       "icon": "bottle",
       "photo": "img/pmvnyajk5-mvnyalpx.jpg",
