@@ -2,13 +2,13 @@
   "products": [
     {
       "id": "p1",
-      "brand": "e.l.f.",
-      "name": "Glow Reviver Lip Oil",
-      "kind": "Labios",
-      "cat": "maquillaje",
+      "brand": "eos",
+      "name": "Body Lotion Vainilla Cashmere",
+      "kind": "Piel",
+      "cat": "cuerpo",
       "icon": "gloss",
-      "price": 750,
-      "desc": "Brillo jugoso y labios con apariencia hidratada, con aceite de chabacano.",
+      "price": 1500,
+      "desc": "• Hidratación duradera.\n• Aroma dulce y delicioso a vainilla.\n• Deja la piel suave y sedosa.\n• Textura cremosa y fácil de aplicar.\n• Ideal para el cuidado diario de la piel.",
       "tones": [
         [
           "Berry Dream",
@@ -27,8 +27,11 @@
           "#f3b08f"
         ]
       ],
-      "photo": "",
-      "sold": false
+      "photo": "img/p1-mvn9jonk.jpg",
+      "sold": false,
+      "badge": "nuevo",
+      "howto": "1. Aplica la crema sobre la piel limpia.\n2. Coloca una cantidad adecuada en las manos.\n3. Distribuye por todo el cuerpo con movimientos circulares.\n4. Masajea suavemente hasta que se absorba.\n5. Úsala diariamente, preferiblemente después del baño, para mantener la piel suave e hidratada.\n\n✨ Tip: Aplícala con la piel ligeramente húmeda para ayudar a retener la hidratación.",
+      "stock": null
     },
     {
       "id": "p2",
@@ -215,13 +218,13 @@
     "announcement": "🚚 Enviamos a toda República Dominicana",
     "promos": [
       {
-        "id": "cmvn9fmk1",
-        "hash": "28dba58e3d7ae86bb0d17ac4d5297549efc236974e8427391a317ae013d77ebc",
-        "hint": "PRI",
+        "id": "cmvn9ajv9",
+        "hash": "a4dddedb4da4abce5ca395879c84c5e60db74ec3b2596be507eb0323d7baa410",
+        "hint": "INV",
         "type": "percent",
-        "value": 10,
-        "min": 0,
-        "expires": null,
+        "value": 5,
+        "min": 2500,
+        "expires": "2026-12-31",
         "active": true
       }
     ]
