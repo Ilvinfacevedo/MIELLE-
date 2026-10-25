@@ -1,6 +1,23 @@
 {
   "products": [
     {
+      "id": "pmvnyajk5",
+      "icon": "bottle",
+      "photo": "img/pmvnyajk5-mvnyalpx.jpg",
+      "createdAt": 1792940183429,
+      "brand": "The Ordinary",
+      "name": "Ácido Glicólico",
+      "kind": "Piel",
+      "cat": "bienestar",
+      "price": 1400,
+      "desc": "* Ayuda a mejorar la textura y luminosidad del rostro.\n* Contribuye a disminuir manchas y marcas superficiales.\n* Ayuda a mejorar la apariencia de poros y piel opaca.\n* Deja la piel más suave y uniforme.\n* Ideal para complementar una rutina de cuidado facial.\n\nContenido: 100 ml.",
+      "tones": [],
+      "sold": true,
+      "badge": "top",
+      "howto": "* Comenzar utilizándolo 2 o 3 noches por semana.\n* No combinar en la misma rutina con otros exfoliantes o retinol.\n* No aplicar sobre piel irritada o lastimada.\n* Realizar una prueba de sensibilidad antes del primer uso.",
+      "stock": null
+    },
+    {
       "id": "p6",
       "brand": "Beauty Creations",
       "name": "Coco Dream Lip Treatment",
