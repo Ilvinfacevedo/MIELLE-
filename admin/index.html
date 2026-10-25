@@ -40,10 +40,40 @@
   <div class="tabs" role="group" aria-label="Sección">
     <button class="chip" type="button" id="tabProducts" aria-pressed="true">Productos</button>
     <button class="chip" type="button" id="tabSettings" aria-pressed="false">Portada y envíos</button>
+    <button class="chip" type="button" id="tabReviews" aria-pressed="false">Reseñas</button>
     <button class="chip" type="button" id="tabPromos" aria-pressed="false">Códigos</button>
     <button class="chip" type="button" id="tabSale" aria-pressed="false">Confirmar venta</button>
   </div>
   <p class="status" id="status" role="status"></p>
+
+  <div id="reviewView" class="view pform" hidden>
+    <h3 style="font-size:1.3rem" id="rFormTitle">Agregar reseña de una clienta</h3>
+    <div class="field">
+      <span class="lbl">Foto de la clienta</span>
+      <div class="photo-box">
+        <div class="photo-prev" id="rPrev" style="width:110px;height:138px">Sin foto</div>
+        <div class="photo-acts">
+          <span class="btn ghost sm file-lbl">Elegir foto<input type="file" id="rPhoto" accept="image/*"></span>
+          <small>Mejor vertical. Pide permiso a tu clienta antes de publicarla.</small>
+        </div>
+      </div>
+    </div>
+    <div class="two">
+      <div class="field"><label for="rProduct">Artículo que compró</label><select id="rProduct"></select></div>
+      <div class="field"><label for="rStars">Estrellas</label>
+        <select id="rStars"><option value="5">★★★★★ (5)</option><option value="4">★★★★ (4)</option><option value="3">★★★ (3)</option><option value="2">★★ (2)</option><option value="1">★ (1)</option></select>
+      </div>
+    </div>
+    <div class="field"><label for="rName">Nombre o @ de la clienta</label><input type="text" id="rName" placeholder="@clienta"></div>
+    <div class="field"><label for="rText">Comentario</label><textarea id="rText" placeholder="Lo que te dijo sobre el producto"></textarea></div>
+    <label class="check"><input type="checkbox" id="rActive" checked> Mostrar en la tienda</label>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn" type="button" id="rSave">Agregar reseña</button>
+      <button class="btn ghost" type="button" id="rCancel" hidden>Cancelar edición</button>
+    </div>
+    <h3 style="font-size:1.3rem;margin-top:8px">Reseñas publicadas</h3>
+    <ul class="alist" id="reviewList"></ul>
+  </div>
 
   <div id="promoView" class="view pform" hidden>
     <h3 style="font-size:1.3rem">Crear código promocional</h3>

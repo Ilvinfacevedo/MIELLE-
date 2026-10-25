@@ -23,7 +23,8 @@ const DEFAULT_SETTINGS = {
   heroProduct: "",
   freeShipFrom: null,
   lowStockAt: 3,
-  promos: []
+  promos: [],
+  reviews: []
 };
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt = n => Number(n).toLocaleString("en-US");
@@ -108,6 +109,35 @@ function renderRail(list){
   $("destacados").hidden = !picks.length;
   $("rail").innerHTML = picks.map(p => card(p, "rail-card")).join("");
 }
+/* ---------- Customer reviews carousel ---------- */
+function renderReviews(){
+  const list = (settings.reviews || []).filter(r => r.active !== false && r.photo);
+  $("resenas").hidden = !list.length;
+  if (!list.length) return;
+  $("revCount").textContent = `${list.length} reseña${list.length === 1 ? "" : "s"}`;
+  $("revRail").innerHTML = list.map(r => {
+    const p = products.find(x => x.id === r.productId);
+    const stars = Math.max(1, Math.min(5, Number(r.stars) || 5));
+    const prod = p ? `<button class="rev-prod" type="button" data-open="${esc(p.id)}">
+        ${photoURL(p) ? `<img src="${esc(photoURL(p))}" alt="">` : `<span class="thumb">${drawing(p, "")}</span>`}
+        <span><b>${esc(p.name)}</b><small>${esc(p.brand || "")}${p.price ? " · " + money(p.price) : ""}</small></span>
+      </button>` : "";
+    return `<article class="rev-card">
+      <div class="rev-photo"><img src="${esc(photoURL(r))}" alt="Foto de ${esc(r.name || "una clienta")}" loading="lazy"></div>
+      <div class="rev-body">
+        <span class="rev-stars" aria-label="${stars} de 5 estrellas">${"★".repeat(stars)}<span>${"★".repeat(5 - stars)}</span></span>
+        ${r.text ? `<p>“${esc(r.text)}”</p>` : ""}
+        ${r.name ? `<span class="rev-name">${esc(r.name)}</span>` : ""}
+        ${prod}
+      </div>
+    </article>`;
+  }).join("");
+}
+$("revRail").addEventListener("click", e => {
+  const b = e.target.closest("[data-open]"); if (!b) return;
+  const p = products.find(x => x.id === b.dataset.open); if (p) openSheet(p);
+});
+
 function heroProduct(){
   if (settings.heroProduct) { const p = products.find(x => x.id === settings.heroProduct); if (p) return p; }
   const avail = products.filter(p => !isOut(p));
@@ -675,6 +705,7 @@ $("shareInvoice").onclick = async () => {
   if (savedPromo) { try { await applyPromo(savedPromo, true); } catch (e) {} }
   render(products);
   renderRail(products);
+  renderReviews();
   renderHero();
   fillOptions();
   updateCount();

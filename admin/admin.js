@@ -156,6 +156,8 @@ function setTab(t){
   $("tabSettings").setAttribute("aria-pressed", t === "settings");
   $("tabSale").setAttribute("aria-pressed", t === "sale");
   $("saleView").hidden = t !== "sale";
+  $("tabReviews").setAttribute("aria-pressed", t === "reviews");
+  $("reviewView").hidden = t !== "reviews";
   $("tabPromos").setAttribute("aria-pressed", t === "promos");
   $("promoView").hidden = t !== "promos";
   $("pform").hidden = true;
@@ -167,6 +169,7 @@ function setTab(t){
 $("tabProducts").onclick = () => setTab("products");
 $("tabSale").onclick = () => { setTab("sale"); setStatus(""); };
 $("tabPromos").onclick = () => { renderPromos(); setTab("promos"); };
+$("tabReviews").onclick = () => { fillReviewProducts(); renderReviews(); setTab("reviews"); };
 $("tabSettings").onclick = () => { fillHeroProducts(); setTab("settings"); };
 
 /* ---------- Product form ---------- */
@@ -273,8 +276,18 @@ async function save(okMsg){
       files.push({path, sha});
       outSettings.heroPhoto = path; delete outSettings._newHeroPhoto;
     }
-    const keep = new Set(out.map(p => p.photo).filter(Boolean).concat(outSettings.heroPhoto || []));
-    const deletes = original.products.map(p => p.photo).concat(original.settings.heroPhoto || [])
+    const pendingRev = (outSettings.reviews || []).filter(r => r._newPhoto);
+    for (let i = 0; i < pendingRev.length; i++) {
+      const r = pendingRev[i];
+      setStatus(`Subiendo fotos de reseñas… ${i + 1} de ${pendingRev.length}`);
+      const {sha} = await api("/api/blob", {content: r._newPhoto.split(",")[1]});
+      const path = `img/${r.id}-${Date.now().toString(36)}.jpg`;
+      files.push({path, sha});
+      r.photo = path; delete r._newPhoto;
+    }
+    const revPhotos = s => (s.reviews || []).map(r => r.photo).filter(Boolean);
+    const keep = new Set(out.map(p => p.photo).filter(Boolean).concat(outSettings.heroPhoto || [], revPhotos(outSettings)));
+    const deletes = original.products.map(p => p.photo).concat(original.settings.heroPhoto || [], revPhotos(original.settings))
       .filter(ph => ph && ph.startsWith("img/") && !keep.has(ph));
     setStatus("Guardando…");
     await api("/api/save", {data: {products: out, settings: outSettings}, files, deletes});
@@ -282,6 +295,7 @@ async function save(okMsg){
     original = {products: clone(out), settings: clone(outSettings)};
     (draftSettings.promos || []).forEach(x => { if (plain[x.id]) x._code = plain[x.id]; });
     if (tab === "promos") renderPromos();
+    if (tab === "reviews") renderReviews();
     setHeroPreview();
     dirty = false;
     renderAdminList();
@@ -425,4 +439,85 @@ $("pCreate").onclick = async () => {
   $("pCode").value = ""; $("pValue").value = ""; $("pMin").value = ""; $("pExp").value = ""; $("pActive").checked = true;
   renderPromos(); markDirty();
   setStatus(`Código ${code} creado. Toca "Guardar cambios" para activarlo en la tienda.`);
+};
+
+/* ---------- Customer reviews ---------- */
+let rEditing = null, rPhoto = "", rPhotoNew = false;
+const revPhotoURL = r => r._newPhoto || (r.photo ? "/" + r.photo : "");
+
+function fillReviewProducts(){
+  const cur = $("rProduct").value;
+  $("rProduct").innerHTML = `<option value="">Elige el artículo</option>` +
+    draft.map(p => `<option value="${esc(p.id)}">${esc(p.brand ? p.brand + " · " : "")}${esc(p.name)}</option>`).join("");
+  if (draft.some(p => p.id === cur)) $("rProduct").value = cur;
+}
+function setReviewPhoto(src, isNew){
+  rPhoto = src || ""; rPhotoNew = !!isNew && !!src;
+  $("rPrev").innerHTML = rPhoto ? `<img src="${esc(rPhoto)}" alt="Vista previa">` : "Sin foto";
+}
+function resetReviewForm(){
+  rEditing = null; setReviewPhoto("", false);
+  $("rPhoto").value = ""; $("rName").value = ""; $("rText").value = ""; $("rStars").value = "5"; $("rActive").checked = true;
+  $("rProduct").value = "";
+  $("rFormTitle").textContent = "Agregar reseña de una clienta"; $("rSave").textContent = "Agregar reseña"; $("rCancel").hidden = true;
+}
+function renderReviews(){
+  const list = draftSettings.reviews || [];
+  if (!list.length) { $("reviewList").innerHTML = `<li class="empty">Todavía no hay reseñas.</li>`; return; }
+  $("reviewList").innerHTML = list.map((r, i) => {
+    const p = draft.find(x => x.id === r.productId);
+    return `<li class="arow" data-i="${i}">
+      <div class="thumb">${revPhotoURL(r) ? `<img src="${esc(revPhotoURL(r))}" alt="">` : ""}</div>
+      <div class="info"><b>${esc(r.name || "Clienta")} · ${"★".repeat(Number(r.stars) || 5)}</b><span>${p ? esc(p.name) : "Producto borrado"}${r.active === false ? " · Oculta" : ""}</span></div>
+      <div class="acts">
+        <button class="icon-btn" type="button" data-ract="up" aria-label="Subir" ${i === 0 ? "disabled" : ""}>↑</button>
+        <button class="icon-btn" type="button" data-ract="down" aria-label="Bajar" ${i === list.length - 1 ? "disabled" : ""}>↓</button>
+        <button class="btn ghost sm" type="button" data-ract="edit">Editar</button>
+        <button class="btn danger sm" type="button" data-ract="del">Borrar</button>
+      </div>
+    </li>`;
+  }).join("");
+}
+$("reviewList").addEventListener("click", e => {
+  const b = e.target.closest("[data-ract]"); if (!b) return;
+  const list = draftSettings.reviews, i = Number(b.closest("li").dataset.i), act = b.dataset.ract;
+  if (act === "up" && i > 0) { [list[i-1], list[i]] = [list[i], list[i-1]]; }
+  else if (act === "down" && i < list.length - 1) { [list[i+1], list[i]] = [list[i], list[i+1]]; }
+  else if (act === "edit") {
+    const r = list[i]; rEditing = i;
+    fillReviewProducts();
+    setReviewPhoto(revPhotoURL(r), !!r._newPhoto);
+    $("rProduct").value = r.productId || ""; $("rStars").value = String(r.stars || 5);
+    $("rName").value = r.name || ""; $("rText").value = r.text || ""; $("rActive").checked = r.active !== false;
+    $("rFormTitle").textContent = "Editar reseña"; $("rSave").textContent = "Guardar reseña"; $("rCancel").hidden = false;
+    window.scrollTo({top: 0}); return;
+  }
+  else if (act === "del") {
+    if (!b.classList.contains("armed")) { b.classList.add("armed"); b.textContent = "¿Seguro?"; return; }
+    list.splice(i, 1);
+    if (rEditing === i) resetReviewForm();
+  } else return;
+  markDirty(); renderReviews();
+});
+$("rPhoto").addEventListener("change", async e => {
+  const f = e.target.files && e.target.files[0]; if (!f) return;
+  setStatus("Preparando la foto…");
+  try { setReviewPhoto(await shrink(f, 1000), true); setStatus(""); }
+  catch (err) { setStatus("No pude abrir esa foto. Prueba con una JPG o PNG.", true); }
+});
+$("rCancel").onclick = () => { resetReviewForm(); setStatus(""); };
+$("rSave").onclick = () => {
+  if (!rPhoto) { setStatus("Elige la foto de la clienta.", true); return; }
+  if (!$("rProduct").value) { setStatus("Elige el artículo que compró.", true); $("rProduct").focus(); return; }
+  draftSettings.reviews = draftSettings.reviews || [];
+  const base = rEditing == null ? {id: "r" + Date.now().toString(36), photo: ""} : draftSettings.reviews[rEditing];
+  const r = Object.assign({}, base, {
+    productId: $("rProduct").value, stars: Number($("rStars").value) || 5,
+    name: $("rName").value.trim(), text: $("rText").value.trim(), active: $("rActive").checked
+  });
+  if (rPhotoNew) r._newPhoto = rPhoto; else delete r._newPhoto;
+  const isNew = rEditing == null;
+  if (isNew) draftSettings.reviews.unshift(r); else draftSettings.reviews[rEditing] = r;
+  resetReviewForm(); renderReviews(); markDirty();
+  setStatus(`Reseña ${isNew ? "agregada" : "actualizada"}. Toca "Guardar cambios" para publicarla en la tienda.`);
 };
