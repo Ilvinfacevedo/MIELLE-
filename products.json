@@ -1,6 +1,23 @@
 {
   "products": [
     {
+      "id": "pmvnz42je",
+      "icon": "bottle",
+      "photo": "img/pmvnz42je-mvnz44mz.jpg",
+      "createdAt": 1792941561050,
+      "brand": "NYX",
+      "name": "Wonder Snatch Powder",
+      "kind": "Piel",
+      "cat": "maquillaje",
+      "price": 950,
+      "desc": "* Polvo suelto diseñado para sellar y fijar el maquillaje.\n* Ayuda a controlar el brillo y la apariencia de grasa.\n* Proporciona un acabado suave y aterciopelado.\n* Ayuda a difuminar visualmente la apariencia de poros y pequeñas imperfecciones.\n* Ideal para sellar la zona de las ojeras y la zona T.\n* Deja la piel con un acabado más uniforme y perfeccionado.",
+      "tones": [],
+      "sold": false,
+      "badge": "nuevo",
+      "howto": "• Tomar una pequeña cantidad con una brocha o borla.\n• Retirar el exceso de producto.\n• Aplicar suavemente sobre el rostro después de la base y el corrector.\n• Concentrar la aplicación en la zona T y debajo de los ojos.\n• Difuminar para retirar cualquier exceso.\n• Reaplicar cuando sea necesario para controlar el brillo.",
+      "stock": null
+    },
+    {
       "id": "pmvnyu90b",
       "icon": "bottle",
       "photo": "img/pmvnyu90b-mvnyuaye.jpg",
