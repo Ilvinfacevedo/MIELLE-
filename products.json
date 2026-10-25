@@ -1,19 +1,6 @@
 {
   "products": [
     {
-      "id": "p11",
-      "brand": "Nature's Bounty",
-      "name": "Hair, Skin & Nails Gummies",
-      "kind": "Suplemento",
-      "cat": "bienestar",
-      "icon": "jar",
-      "price": 1600,
-      "desc": "2,500 mcg de biotina con sabor a fresa para cabello, piel y uñas más fuertes.",
-      "tones": [],
-      "photo": "img/p11-mviz265q.jpg",
-      "sold": false
-    },
-    {
       "id": "p1",
       "brand": "eos",
       "name": "Body Lotion Vainilla Cashmere",
@@ -28,6 +15,19 @@
       "badge": "top",
       "howto": "1. Aplica la crema sobre la piel limpia.\n2. Coloca una cantidad adecuada en las manos.\n3. Distribuye por todo el cuerpo con movimientos circulares.\n4. Masajea suavemente hasta que se absorba.\n5. Úsala diariamente, preferiblemente después del baño, para mantener la piel suave e hidratada.\n\n✨ Tip: Aplícala con la piel ligeramente húmeda para ayudar a retener la hidratación.",
       "stock": null
+    },
+    {
+      "id": "p11",
+      "brand": "Nature's Bounty",
+      "name": "Hair, Skin & Nails Gummies",
+      "kind": "Suplemento",
+      "cat": "bienestar",
+      "icon": "jar",
+      "price": 1600,
+      "desc": "2,500 mcg de biotina con sabor a fresa para cabello, piel y uñas más fuertes.",
+      "tones": [],
+      "photo": "img/p11-mviz265q.jpg",
+      "sold": false
     },
     {
       "id": "p2",
