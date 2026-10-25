@@ -9,24 +9,7 @@
       "icon": "gloss",
       "price": 1500,
       "desc": "• Hidratación duradera.\n• Aroma dulce y delicioso a vainilla.\n• Deja la piel suave y sedosa.\n• Textura cremosa y fácil de aplicar.\n• Ideal para el cuidado diario de la piel.",
-      "tones": [
-        [
-          "Berry Dream",
-          "#9c2f4a"
-        ],
-        [
-          "Pink Quartz",
-          "#e79bb0"
-        ],
-        [
-          "Coral Crush",
-          "#ee6f5f"
-        ],
-        [
-          "Peach Glo",
-          "#f3b08f"
-        ]
-      ],
+      "tones": [],
       "photo": "img/p1-mvn9jonk.jpg",
       "sold": false,
       "badge": "nuevo",
