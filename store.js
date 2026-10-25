@@ -1,7 +1,7 @@
 // Mielle store: catalog, cart, checkout, invoice image and WhatsApp order.
 const $ = id => document.getElementById(id);
 const photoURL = p => p.photo ? (/^(https?:|data:|\/)/.test(p.photo) ? p.photo : "/" + p.photo) : "";
-const IG_DM = "https://ig.me/m/shopmielle_";
+const IG_DM = "https://ig.me/m/shopmiellerd";
 const CATS = {maquillaje:"Maquillaje",cabello:"Cabello",cuerpo:"Cuerpo y fragancias",accesorios:"Accesorios",bienestar:"Bienestar"};
 const PROVINCES = ["Distrito Nacional","Santo Domingo","Santiago","Azua","Bahoruco","Barahona","Dajabón","Duarte","Elías Piña","El Seibo","Espaillat","Hato Mayor","Hermanas Mirabal","Independencia","La Altagracia","La Romana","La Vega","María Trinidad Sánchez","Monseñor Nouel","Monte Cristi","Monte Plata","Pedernales","Peravia","Puerto Plata","Samaná","San Cristóbal","San José de Ocoa","San Juan","San Pedro de Macorís","Sánchez Ramírez","Santiago Rodríguez","Valverde"];
 const DEFAULT_SETTINGS = {
@@ -552,7 +552,9 @@ function waMessage(o){
 }
 
 /* Invoice image drawn on a canvas, in the shop's light palette */
+const loadLogo = () => new Promise(res => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = "/brand/wordmark.png"; });
 async function drawInvoice(o){
+  const logo = await loadLogo();
   try { await Promise.all([document.fonts.load('500 64px "Bodoni Moda"'), document.fonts.load('40px "Pinyon Script"'), document.fonts.load('400 28px "Jost"'), document.fonts.load('600 28px "Jost"')]); } catch (e) {}
   const C = {bg:"#fbf3ef", card:"#fffaf7", cocoa:"#5a3a33", ink:"#3b2622", rose:"#d98a95", muted:"#8a6a62", line:"#ecd3cf", blush:"#f6d9d9"};
   const W = 1080, P = 72, c = o.calc, cu = o.customer;
@@ -567,7 +569,8 @@ async function drawInvoice(o){
 
   x.fillStyle = C.bg; x.fillRect(0, 0, W, H);
   x.fillStyle = C.blush; x.fillRect(0, 0, W, 14);
-  text("MIELLE", W / 2, 150, `500 104px ${SERIF}`, C.cocoa, "center");
+  if (logo) { const lw = 520, lh = lw * logo.height / logo.width; x.drawImage(logo, (W - lw) / 2, 168 - lh, lw, lh); }
+  else text("MIELLE", W / 2, 150, `500 104px ${SERIF}`, C.cocoa, "center");
   text("Todo lo que te encanta, en un solo lugar", W / 2, 210, `44px ${SCRIPT}`, C.rose, "center");
   text("BEAUTY & LIFESTYLE · REPÚBLICA DOMINICANA", W / 2, 258, `500 22px ${SANS}`, C.muted, "center");
 
@@ -613,7 +616,7 @@ async function drawInvoice(o){
   }
   y += 110;
   text("¡Gracias por tu compra!", W / 2, y, `44px ${SCRIPT}`, C.rose, "center");
-  text("@shopmielle_", W / 2, y + 44, `500 24px ${SANS}`, C.muted, "center");
+  text("@shopmiellerd", W / 2, y + 44, `500 24px ${SANS}`, C.muted, "center");
   const out = document.createElement("canvas"); out.width = W; out.height = y + 100;
   out.getContext("2d").drawImage(cv, 0, 0);
   return out.toDataURL("image/png");

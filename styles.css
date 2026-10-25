@@ -38,6 +38,12 @@ h1,h2,h3{font-family:var(--display);font-weight:500;color:var(--cocoa);text-wrap
 nav.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:15;background:var(--bg);border-bottom:1px solid var(--line)}
 nav.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:12px}
 .mark{font-family:var(--display);font-size:1.4rem;letter-spacing:.08em;color:var(--cocoa);text-decoration:none}
+/* Brand wordmark from the logo, painted with the theme color through a mask so it follows dark mode */
+.logo{display:inline-block;height:30px;aspect-ratio:982/201;max-width:100%;background:var(--cocoa);-webkit-mask:url(/brand/wordmark.png) center/contain no-repeat;mask:url(/brand/wordmark.png) center/contain no-repeat;vertical-align:middle}
+.logo-shop{aspect-ratio:982/270;-webkit-mask-image:url(/brand/wordmark-shop.png);mask-image:url(/brand/wordmark-shop.png)}
+.mark .logo{height:28px}
+.hero-logo{height:clamp(64px,14vw,110px)}
+.footer-logo{height:44px}
 .navlinks{display:flex;gap:22px;font-size:.9rem}
 .navlinks a{text-decoration:none;color:var(--muted)}
 .navlinks a:hover{color:var(--cocoa)}
