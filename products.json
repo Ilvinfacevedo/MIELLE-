@@ -153,24 +153,14 @@
       "kind": "Tratamiento de labios",
       "cat": "maquillaje",
       "icon": "tube",
-      "price": null,
-      "desc": "Tratamiento nutritivo de coco para labios suaves.",
+      "price": 750,
+      "desc": "• Acabado brillante y luminoso.\n• Aporta un toque de color a tus labios.\n• Textura suave y agradable.\n• Deja los labios con apariencia jugosa.\n• Ideal para usar solo o combinado con tu labial favorito.",
       "tones": [],
-      "photo": "",
-      "sold": false
-    },
-    {
-      "id": "p9",
-      "brand": "eos",
-      "name": "Loción Corporal Vanilla Cashmere",
-      "kind": "Cuerpo",
-      "cat": "cuerpo",
-      "icon": "bottle",
-      "price": 1500,
-      "desc": "Hidratación profunda por 24 horas con un delicioso aroma a vainilla.",
-      "tones": [],
-      "photo": "",
-      "sold": false
+      "photo": "img/p6-mvnxmhvz.jpg",
+      "sold": true,
+      "badge": "nuevo",
+      "howto": "• Aplica directamente sobre los labios limpios y secos.\n• Desliza el aplicador desde el centro hacia las comisuras.\n• Puedes aplicar una segunda capa para intensificar el brillo.\n• Úsalo solo o sobre tu labial favorito.\n• Reaplica cuando desees mantener el brillo.",
+      "stock": null
     }
   ],
   "settings": {
