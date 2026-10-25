@@ -284,10 +284,9 @@ function promoLabel(def){
   return def.type === "percent" ? `${def.value}% de descuento` : def.type === "fixed" ? `${money(def.value)} de descuento` : "Envío gratis";
 }
 async function findPromo(code){
-  if (!code || !(settings.promos || []).length) return {error: "Ese código no existe."};
   const h = await promoHash(code);
-  const def = settings.promos.find(p => p.hash === h);
-  if (!def) return {error: "Ese código no existe. Revisa que esté bien escrito."};
+  const def = (settings.promos || []).find(p => p.hash === h);
+  if (!def) return {error: "Código no válido. Revisa que esté bien escrito."};
   if (def.active === false) return {error: "Ese código ya no está activo."};
   if (promoExpired(def)) return {error: "Ese código ya venció."};
   return {def};
@@ -303,9 +302,13 @@ async function applyPromo(code, quiet){
   return true;
 }
 function removePromo(){ promo = null; local.set("mielle-promo", ""); renderPromo(); }
-function promoMsg(t, err){ $("promoMsg").textContent = t || ""; $("promoMsg").classList.toggle("err", !!err); }
+function promoMsg(t, err){
+  $("promoMsg").textContent = t || ""; $("promoMsg").classList.toggle("err", !!err);
+  $("promoInput").classList.toggle("bad", !!err && !promo);
+}
 function renderPromo(){
-  $("promoForm").hidden = !(settings.promos || []).length || !cart.length;
+  // Always offered while there is something to buy, even before any code exists.
+  $("promoForm").hidden = !cart.length;
   const on = !!promo;
   $("promoOn").hidden = !on;
   $("promoInput").closest(".promo-row").hidden = on;
@@ -381,6 +384,7 @@ function totalsHTML(c, withShip){
 function renderCartList(){
   const c = calc();
   renderFreeShip(c);
+  $("cartTotals").after($("promoForm"));
   renderPromo();
   const up = c.ls.length ? upsellHTML("Completa tu pedido") : "";
   $("upsellCart").innerHTML = up; $("upsellCart").hidden = !up;
@@ -481,6 +485,7 @@ function customer(){
 }
 
 function renderReview(){
+  $("vCart").appendChild($("promoForm")); // keep the promo box out of the way while the review is rebuilt
   const c = calc(), cu = customer();
   $("vReview").innerHTML = `
     <div class="summary"><h4>Cliente</h4><span>${esc(cu.name)}</span><span>${esc(cu.phone)}</span></div>
@@ -489,6 +494,7 @@ function renderReview(){
     <div class="summary"><h4>Pago</h4><span>${esc(cu.pay)}</span>${cu.notes ? `<span>Notas: ${esc(cu.notes)}</span>` : ""}</div>
     <div class="upsell">${upsellHTML("¿Algo más antes de terminar?")}</div>
     <div class="totals">${totalsHTML(c, true)}</div>`;
+  $("vReview").querySelector(".totals").after($("promoForm"));
 }
 
 $("nextBtn").onclick = async () => {

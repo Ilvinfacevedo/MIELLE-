@@ -336,6 +336,7 @@ footer .mark{font-size:1.2rem}
 .promo-msg{margin:0;font-size:.85rem;color:var(--muted)}
 .promo-msg:empty{display:none}
 .promo-msg.err{color:var(--danger)}
+.promo-row input.bad{border-color:var(--danger)}
 .link-btn{background:none;border:0;padding:4px;font:inherit;font-size:.88rem;color:var(--cocoa);text-decoration:underline;cursor:pointer}
 .totals .disc span:last-child{color:var(--ok);font-weight:500}
 
