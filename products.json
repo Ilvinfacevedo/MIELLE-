@@ -1,6 +1,22 @@
 {
   "products": [
     {
+      "id": "p2",
+      "brand": "e.l.f.",
+      "name": "Monochromatic Multi-Stick",
+      "kind": "Labios y mejillas",
+      "cat": "maquillaje",
+      "icon": "bottle",
+      "price": 750,
+      "desc": "• Textura cremosa y ligera.\n• Fácil de difuminar.\n• Ideal para mejillas, labios y ojos.\n• Aporta un acabado natural y luminoso.\n• Formato práctico para llevar contigo a todas partes.",
+      "tones": [],
+      "photo": "img/p2-mvnc1sap.jpg",
+      "sold": false,
+      "badge": "nuevo",
+      "howto": "• Desliza suavemente el producto sobre la piel.\n• Difumina con los dedos, una esponja o brocha.\n• Aplica en mejillas para dar color.\n• Úsalo en los labios para un toque de color.\n• Aplícalo en los párpados para complementar tu maquillaje.\n• Repite la aplicación si deseas mayor intensidad.",
+      "stock": null
+    },
+    {
       "id": "pmvnz42je",
       "icon": "bottle",
       "photo": "img/pmvnz42je-mvnz44mz.jpg",
@@ -181,22 +197,6 @@
       "tones": [],
       "photo": "img/p11-mviz265q.jpg",
       "sold": false
-    },
-    {
-      "id": "p2",
-      "brand": "e.l.f.",
-      "name": "Monochromatic Multi-Stick",
-      "kind": "Labios y mejillas",
-      "cat": "maquillaje",
-      "icon": "bottle",
-      "price": 750,
-      "desc": "• Textura cremosa y ligera.\n• Fácil de difuminar.\n• Ideal para mejillas, labios y ojos.\n• Aporta un acabado natural y luminoso.\n• Formato práctico para llevar contigo a todas partes.",
-      "tones": [],
-      "photo": "img/p2-mvnc1sap.jpg",
-      "sold": false,
-      "badge": "nuevo",
-      "howto": "• Desliza suavemente el producto sobre la piel.\n• Difumina con los dedos, una esponja o brocha.\n• Aplica en mejillas para dar color.\n• Úsalo en los labios para un toque de color.\n• Aplícalo en los párpados para complementar tu maquillaje.\n• Repite la aplicación si deseas mayor intensidad.",
-      "stock": null
     },
     {
       "id": "p7",
