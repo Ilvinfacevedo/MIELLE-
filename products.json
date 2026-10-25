@@ -85,10 +85,13 @@
       "cat": "maquillaje",
       "icon": "spray",
       "price": 1300,
-      "desc": "Sella tu maquillaje y lo mantiene fresco todo el día, con agua de rosas.",
+      "desc": "• Ayuda a fijar el maquillaje.\n• Aporta un acabado luminoso y radiante.\n• Enriquecido con extracto de rosa.\n• Refresca la piel.\n• Brinda una sensación ligera y agradable.\n• Ideal para darle a tu maquillaje un acabado fresco y bonito.",
       "tones": [],
-      "photo": "",
-      "sold": false
+      "photo": "img/p3-mvncj9ws.jpg",
+      "sold": false,
+      "badge": "top",
+      "howto": "Agita bien el envase antes de usar.\n• Mantén el spray a una distancia de 20-25 cm del rostro.\n• Cierra los ojos y la boca.\n• Rocía uniformemente sobre el maquillaje.\n• Deja secar al aire sin tocar el rostro.\n• Úsalo como último paso para fijar y refrescar tu maquillaje.",
+      "stock": 1
     },
     {
       "id": "p4",
