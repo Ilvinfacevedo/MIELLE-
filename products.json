@@ -319,6 +319,15 @@
     "heroText": "",
     "reviews": [
       {
+        "id": "rmvoeyg6r",
+        "photo": "img/rmvoeyg6r-mvoez6xv.jpg",
+        "productId": "pmvnyajk5",
+        "stars": 5,
+        "name": "Laura Fermin",
+        "text": "Excelente producto, 100% recomendado me encantó.",
+        "active": true
+      },
+      {
         "id": "rmvoevo3f",
         "photo": "img/rmvoevo3f-mvoexh0b.jpg",
         "productId": "pmvoetxd2",
