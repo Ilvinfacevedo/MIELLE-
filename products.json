@@ -1,6 +1,22 @@
 {
   "products": [
     {
+      "id": "p3",
+      "brand": "e.l.f.",
+      "name": "Power Grip Rose Setting Spray",
+      "kind": "Fijador",
+      "cat": "maquillaje",
+      "icon": "spray",
+      "price": 1300,
+      "desc": "• Ayuda a fijar el maquillaje.\n• Aporta un acabado luminoso y radiante.\n• Enriquecido con extracto de rosa.\n• Refresca la piel.\n• Brinda una sensación ligera y agradable.\n• Ideal para darle a tu maquillaje un acabado fresco y bonito.",
+      "tones": [],
+      "photo": "img/p3-mvncj9ws.jpg",
+      "sold": false,
+      "badge": "top",
+      "howto": "Agita bien el envase antes de usar.\n• Mantén el spray a una distancia de 20-25 cm del rostro.\n• Cierra los ojos y la boca.\n• Rocía uniformemente sobre el maquillaje.\n• Deja secar al aire sin tocar el rostro.\n• Úsalo como último paso para fijar y refrescar tu maquillaje.",
+      "stock": 1
+    },
+    {
       "id": "p1",
       "brand": "eos",
       "name": "Body Lotion Vainilla Cashmere",
@@ -76,22 +92,6 @@
       "badge": "nuevo",
       "howto": "• Lava tu cabello y retira el exceso de agua con una toalla.\n• Divide el cabello en secciones.\n• Aplica el producto uniformemente sobre el cabello húmedo.\n• Distribuye de medios a puntas.\n• Peina para asegurar que el producto llegue a todos los rizos.\n• Define tus rizos con las manos o tu técnica habitual.\n• Deja secar al aire o utiliza un difusor.\n\n Para mejores resultados, úsalo sobre el cabello limpio y húmedo.",
       "stock": null
-    },
-    {
-      "id": "p3",
-      "brand": "e.l.f.",
-      "name": "Power Grip Rose Setting Spray",
-      "kind": "Fijador",
-      "cat": "maquillaje",
-      "icon": "spray",
-      "price": 1300,
-      "desc": "• Ayuda a fijar el maquillaje.\n• Aporta un acabado luminoso y radiante.\n• Enriquecido con extracto de rosa.\n• Refresca la piel.\n• Brinda una sensación ligera y agradable.\n• Ideal para darle a tu maquillaje un acabado fresco y bonito.",
-      "tones": [],
-      "photo": "img/p3-mvncj9ws.jpg",
-      "sold": false,
-      "badge": "top",
-      "howto": "Agita bien el envase antes de usar.\n• Mantén el spray a una distancia de 20-25 cm del rostro.\n• Cierra los ojos y la boca.\n• Rocía uniformemente sobre el maquillaje.\n• Deja secar al aire sin tocar el rostro.\n• Úsalo como último paso para fijar y refrescar tu maquillaje.",
-      "stock": 1
     },
     {
       "id": "p4",
