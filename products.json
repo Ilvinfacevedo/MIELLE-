@@ -30,22 +30,6 @@
       "stock": null
     },
     {
-      "id": "p7",
-      "brand": "göt2b",
-      "name": "Glued Gel de Peinado",
-      "kind": "Cabello",
-      "cat": "cabello",
-      "icon": "tube",
-      "price": 550,
-      "desc": "• Fijación fuerte y duradera.\n• Ideal para peinados definidos.\n• Ayuda a mantener los cabellos rebeldes en su lugar.\n• Perfecto para baby hairs y bordes.\n• Ideal para acabados pulidos y recogidos.\n• Presentación pequeña, práctica para llevar en la cartera.",
-      "tones": [],
-      "photo": "img/p7-mvnac7ot.jpg",
-      "sold": false,
-      "badge": "nuevo",
-      "howto": "1. Aplica una pequeña cantidad sobre el cabello.\n2. Utiliza un cepillito para distribuir el producto.\n3. Peina los baby hairs o bordes en la forma deseada.\n4. Presiona suavemente para definir el peinado.\n5. Deja secar hasta conseguir la fijación deseada.",
-      "stock": 1
-    },
-    {
       "id": "p2",
       "brand": "e.l.f.",
       "name": "Monochromatic Multi-Stick",
@@ -60,6 +44,22 @@
       "badge": "nuevo",
       "howto": "• Desliza suavemente el producto sobre la piel.\n• Difumina con los dedos, una esponja o brocha.\n• Aplica en mejillas para dar color.\n• Úsalo en los labios para un toque de color.\n• Aplícalo en los párpados para complementar tu maquillaje.\n• Repite la aplicación si deseas mayor intensidad.",
       "stock": null
+    },
+    {
+      "id": "p7",
+      "brand": "göt2b",
+      "name": "Glued Gel de Peinado",
+      "kind": "Cabello",
+      "cat": "cabello",
+      "icon": "tube",
+      "price": 550,
+      "desc": "• Fijación fuerte y duradera.\n• Ideal para peinados definidos.\n• Ayuda a mantener los cabellos rebeldes en su lugar.\n• Perfecto para baby hairs y bordes.\n• Ideal para acabados pulidos y recogidos.\n• Presentación pequeña, práctica para llevar en la cartera.",
+      "tones": [],
+      "photo": "img/p7-mvnac7ot.jpg",
+      "sold": false,
+      "badge": "nuevo",
+      "howto": "1. Aplica una pequeña cantidad sobre el cabello.\n2. Utiliza un cepillito para distribuir el producto.\n3. Peina los baby hairs o bordes en la forma deseada.\n4. Presiona suavemente para definir el peinado.\n5. Deja secar hasta conseguir la fijación deseada.",
+      "stock": 1
     },
     {
       "id": "p3",
