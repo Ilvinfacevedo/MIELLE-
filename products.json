@@ -113,14 +113,17 @@
       "id": "p4",
       "brand": "NYX",
       "name": "Plump Right Back Primer",
-      "kind": "Primer hidratante",
+      "kind": "Primer facial / Prebase de maquillaje. 💗",
       "cat": "maquillaje",
       "icon": "bottle",
       "price": 1300,
-      "desc": "Hidrata y prepara la piel para que la base se vea más uniforme y dure más.",
+      "desc": "• Prepara la piel antes de aplicar el maquillaje.\n• Ayuda a mejorar la aplicación de la base.\n• Proporciona una superficie más uniforme.\n• Ayuda a prolongar la duración del maquillaje.\n• Deja una sensación suave en la piel.\n• Ideal para conseguir un acabado más bonito y profesional.",
       "tones": [],
-      "photo": "",
-      "sold": false
+      "photo": "img/p4-mvnd80yn.jpg",
+      "sold": false,
+      "badge": "nuevo",
+      "howto": "• Limpia e hidrata tu rostro antes de aplicarlo.\n• Coloca una pequeña cantidad de primer en tus dedos.\n• Distribuye suavemente sobre el rostro.\n• Enfócate en las zonas donde deseas mejorar la textura de la piel.\n• Deja que se absorba durante unos segundos.\n• Continúa con la aplicación de tu base de maquillaje.",
+      "stock": null
     },
     {
       "id": "p5",
