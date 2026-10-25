@@ -251,7 +251,7 @@ footer .mark{font-size:1.2rem}
 .field{display:grid;gap:5px}
 .field label,.field .lbl{font-size:.82rem;font-weight:500;color:var(--cocoa)}
 .field small{color:var(--muted);font-size:.78rem}
-.field input[type=text],.field input[type=password],.field input[type=tel],.field input[type=number],.field select,.field textarea{font:inherit;font-size:1rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+.field input[type=text],.field input[type=password],.field input[type=date],.field input[type=tel],.field input[type=number],.field select,.field textarea{font:inherit;font-size:1rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
 .field textarea{min-height:76px;resize:vertical}
 .field.bad input,.field.bad select{border-color:var(--danger)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -326,6 +326,18 @@ footer .mark{font-size:1.2rem}
 .up-item .info b{display:block;font-weight:500;font-size:.9rem;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .up-item .info span{font-size:.8rem;color:var(--muted)}
 @media (prefers-reduced-motion:reduce){.bump,.cartbar.bump{animation:none}}
+
+/* Promo code */
+.promo{display:grid;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.promo .lbl{font-size:.85rem;font-weight:500;color:var(--cocoa)}
+.promo-row{display:flex;gap:8px}
+.promo-row input{flex:1;min-width:0;font:inherit;font-size:1rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.promo-on{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--blush);border-radius:10px;padding:10px 12px;font-size:.92rem}
+.promo-msg{margin:0;font-size:.85rem;color:var(--muted)}
+.promo-msg:empty{display:none}
+.promo-msg.err{color:var(--danger)}
+.link-btn{background:none;border:0;padding:4px;font:inherit;font-size:.88rem;color:var(--cocoa);text-decoration:underline;cursor:pointer}
+.totals .disc span:last-child{color:var(--ok);font-weight:500}
 
 /* Admin page */
 .admin-page{max-width:640px;margin:0 auto;padding-block:24px 0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px;min-height:100vh}

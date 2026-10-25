@@ -156,6 +156,8 @@ function setTab(t){
   $("tabSettings").setAttribute("aria-pressed", t === "settings");
   $("tabSale").setAttribute("aria-pressed", t === "sale");
   $("saleView").hidden = t !== "sale";
+  $("tabPromos").setAttribute("aria-pressed", t === "promos");
+  $("promoView").hidden = t !== "promos";
   $("pform").hidden = true;
   $("listView").hidden = t !== "products";
   $("settingsView").hidden = t !== "settings";
@@ -164,6 +166,7 @@ function setTab(t){
 }
 $("tabProducts").onclick = () => setTab("products");
 $("tabSale").onclick = () => { setTab("sale"); setStatus(""); };
+$("tabPromos").onclick = () => { renderPromos(); setTab("promos"); };
 $("tabSettings").onclick = () => { fillHeroProducts(); setTab("settings"); };
 
 /* ---------- Product form ---------- */
@@ -260,6 +263,9 @@ async function save(okMsg){
       p.photo = path; delete p._newPhoto;
     }
     const outSettings = clone(draftSettings);
+    // Plain codes stay in this browser session only; the saved file keeps the hash.
+    const plain = Object.fromEntries((draftSettings.promos || []).filter(x => x._code).map(x => [x.id, x._code]));
+    outSettings.promos = (outSettings.promos || []).map(({_code, ...rest}) => rest);
     if (outSettings._newHeroPhoto) {
       setStatus("Subiendo foto de portada…");
       const {sha} = await api("/api/blob", {content: outSettings._newHeroPhoto.split(",")[1]});
@@ -274,6 +280,8 @@ async function save(okMsg){
     await api("/api/save", {data: {products: out, settings: outSettings}, files, deletes});
     draft = out; draftSettings = outSettings;
     original = {products: clone(out), settings: clone(outSettings)};
+    (draftSettings.promos || []).forEach(x => { if (plain[x.id]) x._code = plain[x.id]; });
+    if (tab === "promos") renderPromos();
     setHeroPreview();
     dirty = false;
     renderAdminList();
@@ -352,3 +360,69 @@ $("saleResult").addEventListener("click", async e => {
   if (ok) { $("saleText").value = ""; $("saleResult").hidden = true; saleMatches = null; renderAdminList(); }
   else btn.disabled = false;
 });
+
+/* ---------- Promo codes ---------- */
+async function promoHash(code){
+  const data = new TextEncoder().encode("mielle:" + code.trim().toUpperCase());
+  const buf = await crypto.subtle.digest("SHA-256", data);
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+const promoText = x => x.type === "percent" ? `${x.value}% de descuento` : x.type === "fixed" ? `${money(x.value)} de descuento` : "Envío gratis";
+const promoExpired = x => !!x.expires && new Date() > new Date(x.expires + "T23:59:59");
+const fmtDate = d => { const [y, m, dd] = d.split("-"); return `${dd}/${m}/${y}`; };
+
+function syncPromoType(){
+  const t = $("pType").value;
+  $("pValueField").hidden = t === "freeship";
+  $("pValueLabel").textContent = t === "percent" ? "Descuento (%)" : "Descuento (RD$)";
+  $("pValue").placeholder = t === "percent" ? "10" : "200";
+}
+$("pType").addEventListener("change", syncPromoType);
+syncPromoType();
+
+function renderPromos(){
+  const list = draftSettings.promos || [];
+  if (!list.length) { $("promoList").innerHTML = `<li class="empty">Todavía no tienes códigos.</li>`; return; }
+  $("promoList").innerHTML = list.map((x, i) => {
+    const state = x.active === false ? "Pausado" : promoExpired(x) ? "Vencido" : "Activo";
+    const name = x._code || `${x.hint || ""}•••`;
+    return `<li class="arow" data-i="${i}" style="grid-template-columns:1fr auto">
+      <div class="info"><b>${esc(name)} · ${esc(promoText(x))}</b><span>${state}${x.min ? " · Mínimo " + money(x.min) : ""}${x.expires ? " · Vence " + fmtDate(x.expires) : ""}</span></div>
+      <div class="acts">
+        <button class="btn ghost sm" type="button" data-pact="toggle">${x.active === false ? "Activar" : "Pausar"}</button>
+        <button class="btn danger sm" type="button" data-pact="del">Borrar</button>
+      </div>
+    </li>`;
+  }).join("");
+}
+$("promoList").addEventListener("click", e => {
+  const b = e.target.closest("[data-pact]"); if (!b) return;
+  const i = Number(b.closest("li").dataset.i), list = draftSettings.promos;
+  if (b.dataset.pact === "toggle") { list[i].active = list[i].active === false; }
+  else {
+    if (!b.classList.contains("armed")) { b.classList.add("armed"); b.textContent = "¿Seguro?"; return; }
+    list.splice(i, 1);
+  }
+  markDirty(); renderPromos();
+});
+
+$("pCreate").onclick = async () => {
+  const code = $("pCode").value.replace(/\s+/g, "").toUpperCase();
+  const type = $("pType").value;
+  const value = Number(String($("pValue").value).replace(/[^\d]/g, "")) || 0;
+  const min = Number(String($("pMin").value).replace(/[^\d]/g, "")) || 0;
+  if (!/^[A-Z0-9]{3,20}$/.test(code)) { setStatus("El código debe tener de 3 a 20 letras o números, sin espacios ni símbolos.", true); $("pCode").focus(); return; }
+  if (type === "percent" && (value < 1 || value > 100)) { setStatus("El porcentaje debe estar entre 1 y 100.", true); $("pValue").focus(); return; }
+  if (type === "fixed" && value < 1) { setStatus("Escribe cuántos pesos de descuento.", true); $("pValue").focus(); return; }
+  const hash = await promoHash(code);
+  draftSettings.promos = draftSettings.promos || [];
+  if (draftSettings.promos.some(x => x.hash === hash)) { setStatus(`Ya tienes el código ${code}.`, true); return; }
+  draftSettings.promos.unshift({
+    id: "c" + Date.now().toString(36), hash, hint: code.slice(0, 3), type,
+    value: type === "freeship" ? 0 : value, min, expires: $("pExp").value || null,
+    active: $("pActive").checked, _code: code
+  });
+  $("pCode").value = ""; $("pValue").value = ""; $("pMin").value = ""; $("pExp").value = ""; $("pActive").checked = true;
+  renderPromos(); markDirty();
+  setStatus(`Código ${code} creado. Toca "Guardar cambios" para activarlo en la tienda.`);
+};

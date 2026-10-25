@@ -22,7 +22,8 @@ const DEFAULT_SETTINGS = {
   heroPhoto: "",
   heroProduct: "",
   freeShipFrom: null,
-  lowStockAt: 3
+  lowStockAt: 3,
+  promos: []
 };
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt = n => Number(n).toLocaleString("en-US");
@@ -222,7 +223,7 @@ function updateCount(){
   $("cartCount").textContent = n;
   $("cartBarN").textContent = n;
   const c = calc();
-  $("cartBarTotal").textContent = c.subtotal ? money(c.subtotal) : "";
+  $("cartBarTotal").textContent = c.subtotal ? money(c.subtotal - c.discount) : "";
   $("cartBar").hidden = !n || !$("cart").hidden;
 }
 function bump(){
@@ -252,14 +253,87 @@ function calc(){
   const subtotal = ls.reduce((s, l) => s + (l.total || 0), 0);
   const unpriced = ls.some(l => l.total == null);
   const ship = currentShip();
-  const free = freeShip(subtotal);
+  const pr = promoResult(subtotal);
+  const free = freeShip(subtotal) || !!(pr && pr.ok && pr.def.type === "freeship");
   const shipCost = ship ? (free ? 0 : ship.cost != null ? Number(ship.cost) : null) : null;
-  return {ls, subtotal, unpriced, ship, shipCost, free, total: subtotal + (shipCost || 0)};
+  const discount = pr && pr.ok ? pr.discount : 0;
+  return {ls, subtotal, unpriced, ship, shipCost, free, promo: pr, discount, total: subtotal - discount + (shipCost || 0)};
 }
+/* ---------- Promo codes ----------
+   Codes are stored as SHA-256 hashes in products.json so they can't be read from the public file. */
+let promo = null; // {code, def}
+async function promoHash(code){
+  const data = new TextEncoder().encode("mielle:" + code.trim().toUpperCase());
+  const buf = await crypto.subtle.digest("SHA-256", data);
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+function promoExpired(def){
+  if (!def.expires) return false;
+  return new Date() > new Date(def.expires + "T23:59:59");
+}
+function promoResult(subtotal){
+  if (!promo) return null;
+  const def = promo.def, min = Number(def.min) || 0;
+  if (subtotal < min) return {code: promo.code, def, ok: false, need: min - subtotal, discount: 0};
+  let discount = 0;
+  if (def.type === "percent") discount = Math.round(subtotal * Math.min(100, Number(def.value) || 0) / 100);
+  else if (def.type === "fixed") discount = Math.min(subtotal, Number(def.value) || 0);
+  return {code: promo.code, def, ok: true, need: 0, discount};
+}
+function promoLabel(def){
+  return def.type === "percent" ? `${def.value}% de descuento` : def.type === "fixed" ? `${money(def.value)} de descuento` : "Envío gratis";
+}
+async function findPromo(code){
+  if (!code || !(settings.promos || []).length) return {error: "Ese código no existe."};
+  const h = await promoHash(code);
+  const def = settings.promos.find(p => p.hash === h);
+  if (!def) return {error: "Ese código no existe. Revisa que esté bien escrito."};
+  if (def.active === false) return {error: "Ese código ya no está activo."};
+  if (promoExpired(def)) return {error: "Ese código ya venció."};
+  return {def};
+}
+async function applyPromo(code, quiet){
+  code = code.trim().toUpperCase();
+  const r = await findPromo(code);
+  if (r.error) { if (!quiet) promoMsg(r.error, true); return false; }
+  promo = {code, def: r.def};
+  local.set("mielle-promo", code);
+  if (!quiet) toast(`Código ${code} aplicado`);
+  renderPromo();
+  return true;
+}
+function removePromo(){ promo = null; local.set("mielle-promo", ""); renderPromo(); }
+function promoMsg(t, err){ $("promoMsg").textContent = t || ""; $("promoMsg").classList.toggle("err", !!err); }
+function renderPromo(){
+  $("promoForm").hidden = !(settings.promos || []).length || !cart.length;
+  const on = !!promo;
+  $("promoOn").hidden = !on;
+  $("promoInput").closest(".promo-row").hidden = on;
+  if (on) {
+    const c = calc();
+    $("promoOnText").innerHTML = `<b>${esc(promo.code)}</b> · ${esc(promoLabel(promo.def))}`;
+    promoMsg(c.promo && !c.promo.ok ? `Agrega ${money(c.promo.need)} más para usar este código.` : "", c.promo && !c.promo.ok);
+  } else promoMsg("");
+  if (step === 0) $("cartTotals").innerHTML = cart.length ? totalsHTML(calc(), false) : "";
+  if (step === 3) renderReview();
+  updateCount();
+}
+$("promoForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const code = $("promoInput").value;
+  if (!code.trim()) { promoMsg("Escribe tu código.", true); return; }
+  $("promoApply").disabled = true;
+  try { if (await applyPromo(code)) $("promoInput").value = ""; }
+  catch (err) { promoMsg("No se pudo revisar el código. Intenta de nuevo.", true); }
+  $("promoApply").disabled = false;
+});
+$("promoRemove").onclick = removePromo;
+
 const freeFrom = () => Number(settings.freeShipFrom) || 0;
 const freeShip = subtotal => freeFrom() > 0 && subtotal >= freeFrom();
 function shipLabel(s, subtotal){
-  if (freeShip(subtotal)) return "Gratis";
+  const pr = promoResult(subtotal);
+  if (freeShip(subtotal) || (pr && pr.ok && pr.def.type === "freeship")) return "Gratis";
   return s.cost == null || s.cost === "" ? "A cotizar" : Number(s.cost) === 0 ? "Gratis" : money(s.cost);
 }
 function renderFreeShip(c){
@@ -292,9 +366,10 @@ function upsellHTML(title){
 }
 function totalsHTML(c, withShip){
   let h = `<div><span>Subtotal</span><span>${money(c.subtotal)}</span></div>`;
+  if (c.promo && c.promo.ok && c.discount) h += `<div class="disc"><span>Descuento · ${esc(c.promo.code)}</span><span>−${money(c.discount)}</span></div>`;
   if (withShip) h += `<div><span>Envío${c.ship ? " · " + esc(c.ship.name) : ""}</span><span>${c.shipCost == null ? "A confirmar" : c.shipCost === 0 ? "Gratis" : money(c.shipCost)}</span></div>`;
   else if (c.free) h += `<div><span>Envío</span><span>Gratis</span></div>`;
-  h += `<div class="grand"><span>Total</span><span>${money(withShip ? c.total : c.subtotal)}</span></div>`;
+  h += `<div class="grand"><span>Total</span><span>${money(withShip ? c.total : c.subtotal - c.discount)}</span></div>`;
   const notes = [];
   if (c.unpriced) notes.push("Algunos productos tienen precio por confirmar.");
   if (withShip && c.ship && c.shipCost == null) notes.push("El costo de envío te lo confirmamos por WhatsApp.");
@@ -306,6 +381,7 @@ function totalsHTML(c, withShip){
 function renderCartList(){
   const c = calc();
   renderFreeShip(c);
+  renderPromo();
   const up = c.ls.length ? upsellHTML("Completa tu pedido") : "";
   $("upsellCart").innerHTML = up; $("upsellCart").hidden = !up;
   if (!c.ls.length) {
@@ -458,6 +534,7 @@ function waMessage(o){
   c.ls.forEach(l => L.push(`• ${l.qty} x ${l.p.brand} ${l.p.name}${l.tone ? " (" + l.tone + ")" : ""} — ${l.total == null ? "precio por confirmar" : money(l.total)}`));
   L.push("");
   L.push(`Subtotal: ${money(c.subtotal)}`);
+  if (c.promo && c.promo.ok) L.push(`Código ${c.promo.code}: ${c.discount ? "−" + money(c.discount) : promoLabel(c.promo.def)}`);
   L.push(`Envío: ${c.ship.name}${c.ship.branch && cu.branch ? " · Sucursal: " + cu.branch : ""} — ${c.shipCost == null ? "a confirmar" : c.shipCost === 0 ? (c.free ? "gratis (envío gratis)" : "gratis") : money(c.shipCost)}`);
   L.push(`*Total: ${money(c.total)}*${c.shipCost == null || c.unpriced ? " (sin incluir montos por confirmar)" : ""}`);
   L.push(`Pago: ${cu.pay}`);
@@ -515,6 +592,7 @@ async function drawInvoice(o){
   });
   y += 30; rule(y);
   y += 50; text("Subtotal", P, y, `400 28px ${SANS}`, C.muted); text(money(c.subtotal), W - P, y, `400 28px ${SANS}`, C.ink, "right");
+  if (c.promo && c.promo.ok && c.discount) { y += 46; text("Descuento · " + c.promo.code, P, y, `400 28px ${SANS}`, C.muted); text("−" + money(c.discount), W - P, y, `400 28px ${SANS}`, C.rose, "right"); }
   y += 46; text("Envío", P, y, `400 28px ${SANS}`, C.muted); text(c.shipCost == null ? "A confirmar" : c.shipCost === 0 ? "Gratis" : money(c.shipCost), W - P, y, `400 28px ${SANS}`, C.ink, "right");
   y += 30; rule(y);
   y += 70; text("Total", P, y, `500 46px ${SERIF}`, C.cocoa); text(money(c.total), W - P, y, `500 46px ${SERIF}`, C.cocoa, "right");
@@ -550,7 +628,7 @@ async function finishOrder(){
     const test = new File([new Blob(["x"], {type: "image/png"})], "t.png", {type: "image/png"});
     $("shareInvoice").hidden = !(navigator.canShare && navigator.canShare({files: [test]}));
   } catch (e) { $("shareInvoice").hidden = true; }
-  cart = []; saveCart();
+  cart = []; saveCart(); removePromo();
   setStep(4);
   if (!num) cstatus("Copia el mensaje y pégalo en el chat de Instagram.");
 }
@@ -581,6 +659,8 @@ $("shareInvoice").onclick = async () => {
     $("grid").innerHTML = `<p class="empty">No se pudieron cargar los productos. Recarga la página.</p>`;
   }
   cart = local.get("mielle-cart", []).filter(i => products.some(p => p.id === i.id && !isOut(p)));
+  const savedPromo = local.get("mielle-promo", "");
+  if (savedPromo) { try { await applyPromo(savedPromo, true); } catch (e) {} }
   render(products);
   renderRail(products);
   renderHero();

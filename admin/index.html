@@ -40,9 +40,36 @@
   <div class="tabs" role="group" aria-label="Sección">
     <button class="chip" type="button" id="tabProducts" aria-pressed="true">Productos</button>
     <button class="chip" type="button" id="tabSettings" aria-pressed="false">Portada y envíos</button>
+    <button class="chip" type="button" id="tabPromos" aria-pressed="false">Códigos</button>
     <button class="chip" type="button" id="tabSale" aria-pressed="false">Confirmar venta</button>
   </div>
   <p class="status" id="status" role="status"></p>
+
+  <div id="promoView" class="view pform" hidden>
+    <h3 style="font-size:1.3rem">Crear código promocional</h3>
+    <div class="two">
+      <div class="field"><label for="pCode">Código</label><input type="text" id="pCode" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="VERANO10" style="text-transform:uppercase"><small>Solo letras y números, de 3 a 20.</small></div>
+      <div class="field"><label for="pType">Tipo de descuento</label>
+        <select id="pType">
+          <option value="percent">Porcentaje (%)</option>
+          <option value="fixed">Monto fijo (RD$)</option>
+          <option value="freeship">Envío gratis</option>
+        </select>
+      </div>
+    </div>
+    <div class="two">
+      <div class="field" id="pValueField"><label for="pValue" id="pValueLabel">Descuento (%)</label><input type="number" id="pValue" inputmode="numeric" min="1" step="1" placeholder="10"></div>
+      <div class="field"><label for="pMin">Compra mínima (RD$)</label><input type="number" id="pMin" inputmode="numeric" min="0" step="1" placeholder="Sin mínimo"></div>
+    </div>
+    <div class="two">
+      <div class="field"><label for="pExp">Vence el (opcional)</label><input type="date" id="pExp"></div>
+      <label class="check" style="align-self:end;padding-bottom:10px"><input type="checkbox" id="pActive" checked> Activo</label>
+    </div>
+    <button class="btn" type="button" id="pCreate" style="justify-self:start">Crear código</button>
+    <h3 style="font-size:1.3rem;margin-top:8px">Tus códigos</h3>
+    <ul class="alist" id="promoList"></ul>
+    <small class="muted-s">Los códigos se guardan cifrados, así nadie los puede descubrir mirando la página. Por eso, después de guardar, aquí solo verás las primeras letras. Anótalos cuando los crees.</small>
+  </div>
 
   <div id="saleView" class="view pform" hidden>
     <div class="field">

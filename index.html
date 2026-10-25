@@ -182,6 +182,15 @@
       <div class="freeship" id="freeShip" hidden></div>
       <ul class="clist" id="cartList"></ul>
       <div class="totals" id="cartTotals"></div>
+      <form class="promo" id="promoForm" novalidate hidden>
+        <label for="promoInput" class="lbl">¿Tienes un código promocional?</label>
+        <div class="promo-row">
+          <input type="text" id="promoInput" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Escribe tu código">
+          <button class="btn ghost sm" type="submit" id="promoApply">Aplicar</button>
+        </div>
+        <div class="promo-on" id="promoOn" hidden><span id="promoOnText"></span><button class="link-btn" type="button" id="promoRemove">Quitar</button></div>
+        <p class="promo-msg" id="promoMsg" role="status"></p>
+      </form>
       <div class="upsell" id="upsellCart" hidden></div>
     </div>
 
