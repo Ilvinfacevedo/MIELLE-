@@ -117,14 +117,17 @@
       "id": "p8",
       "brand": "WOW",
       "name": "Dream Coat for Curly Hair",
-      "kind": "Spray anti-frizz",
+      "kind": "Spray Anti-Frizz",
       "cat": "cabello",
       "icon": "spray",
       "price": 2200,
-      "desc": "Controla el frizz, define rizos y protege del calor hasta 230 °C.",
+      "desc": "• Ayuda a definir los rizos y ondas.\n• Aporta suavidad y brillo.\n• Controla el frizz y la humedad.\n• Deja los rizos flexibles y con movimiento natural.\n• Fórmula ligera, sin dejar sensación pesada.\n• Ideal para realzar la forma natural de tus rizos.",
       "tones": [],
-      "photo": "",
-      "sold": false
+      "photo": "img/p8-mvncbcvk.jpg",
+      "sold": false,
+      "badge": "nuevo",
+      "howto": "• Lava tu cabello y retira el exceso de agua con una toalla.\n• Divide el cabello en secciones.\n• Aplica el producto uniformemente sobre el cabello húmedo.\n• Distribuye de medios a puntas.\n• Peina para asegurar que el producto llegue a todos los rizos.\n• Define tus rizos con las manos o tu técnica habitual.\n• Deja secar al aire o utiliza un difusor.\n\n Para mejores resultados, úsalo sobre el cabello limpio y húmedo.",
+      "stock": null
     },
     {
       "id": "p9",
