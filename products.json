@@ -316,6 +316,17 @@
     "freeShipFrom": null,
     "lowStockAt": 3,
     "heroTitle": "",
-    "heroText": ""
+    "heroText": "",
+    "reviews": [
+      {
+        "id": "rmvoevo3f",
+        "photo": "img/rmvoevo3f-mvoexh0b.jpg",
+        "productId": "pmvoetxd2",
+        "stars": 5,
+        "name": "Eldry Reyes",
+        "text": "Me súper encantó, gracias🥰",
+        "active": true
+      }
+    ]
   }
 }
