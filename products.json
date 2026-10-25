@@ -148,15 +148,18 @@
     {
       "id": "p10",
       "brand": "eos",
-      "name": "Splash Corporal Vanilla Cashmere",
+      "name": "Cashmere Body Mist",
       "kind": "Fragancia",
       "cat": "cuerpo",
       "icon": "spray",
       "price": 1600,
-      "desc": "Aroma ligero a vainilla cremosa, flores suaves y caramelo, perfecto para el día.",
+      "desc": "• Fragancia cálida y dulce a vainilla.\n• Deja un aroma delicioso sobre la piel.\n• Ideal para usar todos los días.\n• Perfecto para refrescarte en cualquier momento.\n• Aroma femenino, acogedor y encantador.\n• Fácil de llevar y reaplicar durante el día.",
       "tones": [],
-      "photo": "",
-      "sold": false
+      "photo": "img/p10-mvncq147.jpg",
+      "sold": false,
+      "badge": "top",
+      "howto": "• Aplica sobre la piel limpia y seca.\n• Rocía a una distancia de 15-20 cm del cuerpo.\n• Aplica en cuello, brazos y escote.\n• También puedes usarlo en muñecas.\n• Reaplica durante el día para renovar la fragancia.\n• Evita el contacto con los ojos.",
+      "stock": null
     }
   ],
   "settings": {
