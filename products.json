@@ -88,11 +88,14 @@
       "kind": "Cabello",
       "cat": "cabello",
       "icon": "tube",
-      "price": 950,
-      "desc": "Fijación extrema y resistente al agua, sin residuos. Para peinados creativos.",
+      "price": 550,
+      "desc": "• Fijación fuerte y duradera.\n• Ideal para peinados definidos.\n• Ayuda a mantener los cabellos rebeldes en su lugar.\n• Perfecto para baby hairs y bordes.\n• Ideal para acabados pulidos y recogidos.\n• Presentación pequeña, práctica para llevar en la cartera.",
       "tones": [],
-      "photo": "",
-      "sold": false
+      "photo": "img/p7-mvnac7ot.jpg",
+      "sold": false,
+      "badge": "nuevo",
+      "howto": "1. Aplica una pequeña cantidad sobre el cabello.\n2. Utiliza un cepillito para distribuir el producto.\n3. Peina los baby hairs o bordes en la forma deseada.\n4. Presiona suavemente para definir el peinado.\n5. Deja secar hasta conseguir la fijación deseada.",
+      "stock": 1
     },
     {
       "id": "p8",
