@@ -211,6 +211,19 @@
       "Transferencia bancaria",
       "Efectivo al recibir"
     ],
-    "bank": ""
+    "bank": "",
+    "announcement": "🚚 Enviamos a toda República Dominicana",
+    "promos": [
+      {
+        "id": "cmvn9fmk1",
+        "hash": "28dba58e3d7ae86bb0d17ac4d5297549efc236974e8427391a317ae013d77ebc",
+        "hint": "PRI",
+        "type": "percent",
+        "value": 10,
+        "min": 0,
+        "expires": null,
+        "active": true
+      }
+    ]
   }
 }
