@@ -3,9 +3,28 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Mielle Beauty</title>
+<title>Mielle Shop · Beauty &amp; Lifestyle</title>
 <meta name="description" content="Mielle · Beauty & Lifestyle. Maquillaje, cuidado del cabello, perfumes y accesorios en República Dominicana.">
 <meta name="theme-color" content="#fbf3ef">
+<link rel="icon" href="/brand/icon.svg" type="image/svg+xml">
+<link rel="icon" href="/brand/icon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/brand/icon-180.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="apple-mobile-web-app-title" content="Mielle">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Mielle Shop">
+<meta property="og:title" content="Mielle Shop · Beauty &amp; Lifestyle">
+<meta property="og:description" content="Maquillaje, cuidado del cabello y fragancias originales. Pide en minutos y recíbelo en toda República Dominicana.">
+<meta property="og:url" content="https://mielleshop.vercel.app/">
+<meta property="og:image" content="https://mielleshop.vercel.app/brand/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Logo de Mielle Shop con un lazo rosado">
+<meta property="og:locale" content="es_DO">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Mielle Shop · Beauty &amp; Lifestyle">
+<meta name="twitter:description" content="Maquillaje, cuidado del cabello y fragancias originales en República Dominicana.">
+<meta name="twitter:image" content="https://mielleshop.vercel.app/brand/og.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,500;6..96,600&family=Pinyon+Script&family=Jost:wght@400;500;600&display=swap">
@@ -87,8 +106,14 @@
       <h2>Catálogo</h2>
       <span class="muted-s" id="countLabel"></span>
     </div>
+    <div class="search" role="search">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.8"></circle><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>
+      <input type="search" id="q" placeholder="Buscar productos o marcas" aria-label="Buscar productos" autocomplete="off" enterkeyhint="search">
+      <button class="icon-btn" type="button" id="qClear" aria-label="Borrar búsqueda" hidden>×</button>
+    </div>
     <div class="cats" id="cats" role="group" aria-label="Filtrar por categoría">
       <button class="chip" id="f-todo" data-f="todo" aria-pressed="true">Todo</button>
+      <button class="chip" id="f-kits" data-f="kits" aria-pressed="false">Kits y regalos</button>
       <button class="chip" id="f-maquillaje" data-f="maquillaje" aria-pressed="false">Maquillaje</button>
       <button class="chip" id="f-cabello" data-f="cabello" aria-pressed="false">Cabello</button>
       <button class="chip" id="f-cuerpo" data-f="cuerpo" aria-pressed="false">Cuerpo y fragancias</button>
@@ -162,6 +187,7 @@
       <div class="sheet-price" id="sheetPrice"></div>
       <p class="stock-note" id="sheetStock" hidden></p>
       <div class="field" id="sheetTonesField"><span class="lbl">Tono: <b id="sheetToneName"></b></span><div class="tones" id="sheetTones" role="group" aria-label="Tono"></div></div>
+      <div class="kit-box" id="sheetKit" hidden></div>
       <p class="sheet-desc" id="sheetDesc"></p>
       <div class="howto" id="sheetHowWrap"><h3>Cómo usarlo</h3><p id="sheetHow"></p></div>
       <ul class="trust-mini"><li>100% original</li><li>Envío a toda RD</li><li>Factura incluida</li></ul>

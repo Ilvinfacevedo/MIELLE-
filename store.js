@@ -2,7 +2,7 @@
 const $ = id => document.getElementById(id);
 const photoURL = p => p.photo ? (/^(https?:|data:|\/)/.test(p.photo) ? p.photo : "/" + p.photo) : "";
 const IG_DM = "https://ig.me/m/shopmiellerd";
-const CATS = {maquillaje:"Maquillaje",cabello:"Cabello",cuerpo:"Cuerpo y fragancias",accesorios:"Accesorios",bienestar:"Bienestar"};
+const CATS = {kits:"Kits y regalos",maquillaje:"Maquillaje",cabello:"Cabello",cuerpo:"Cuerpo y fragancias",accesorios:"Accesorios",bienestar:"Bienestar"};
 const PROVINCES = ["Distrito Nacional","Santo Domingo","Santiago","Azua","Bahoruco","Barahona","Dajabón","Duarte","Elías Piña","El Seibo","Espaillat","Hato Mayor","Hermanas Mirabal","Independencia","La Altagracia","La Romana","La Vega","María Trinidad Sánchez","Monseñor Nouel","Monte Cristi","Monte Plata","Pedernales","Peravia","Puerto Plata","Samaná","San Cristóbal","San José de Ocoa","San Juan","San Pedro de Macorís","Sánchez Ramírez","Santiago Rodríguez","Valverde"];
 const DEFAULT_SETTINGS = {
   whatsapp: "",
@@ -58,9 +58,24 @@ function drawing(p, cls){
 }
 const firstTone = p => (p.tones && p.tones[0] ? p.tones[0][0] : "");
 const hasStock = p => p.stock !== undefined && p.stock !== null && p.stock !== "";
-const isOut = p => !!p.sold || (hasStock(p) && Number(p.stock) <= 0);
-const maxQty = p => (hasStock(p) ? Math.max(0, Number(p.stock)) : 99);
-const lowLeft = p => (!isOut(p) && hasStock(p) && Number(p.stock) <= Number(settings.lowStockAt ?? 3) ? Number(p.stock) : null);
+/* Kits are products whose `kit` lists other products [{id, qty}]; their stock comes from those products. */
+const isKit = p => Array.isArray(p.kit) && p.kit.length > 0;
+const kitParts = p => (p.kit || []).map(k => ({p: products.find(x => x.id === k.id), qty: Math.max(1, Number(k.qty) || 1)})).filter(k => k.p);
+const kitRegular = p => { const parts = kitParts(p); return parts.every(k => k.p.price) ? parts.reduce((s, k) => s + k.p.price * k.qty, 0) : 0; };
+function maxQty(p){
+  if (isKit(p)) {
+    const parts = kitParts(p);
+    if (!parts.length || parts.some(k => k.p.sold)) return 0;
+    return Math.min(99, ...parts.map(k => hasStock(k.p) ? Math.floor(Math.max(0, Number(k.p.stock)) / k.qty) : 99));
+  }
+  return hasStock(p) ? Math.max(0, Number(p.stock)) : 99;
+}
+const isOut = p => !!p.sold || (isKit(p) ? maxQty(p) <= 0 : hasStock(p) && Number(p.stock) <= 0);
+function lowLeft(p){
+  if (isOut(p)) return null;
+  const left = isKit(p) ? maxQty(p) : hasStock(p) ? Number(p.stock) : 99;
+  return left <= Number(settings.lowStockAt ?? 3) ? left : null;
+}
 const isTop = p => p.badge === "top" || (!p.badge && p.featured);
 // Newer admin products carry createdAt; ids made by the panel ("p" + base-36 time) also encode it.
 const createdOf = p => p.createdAt || (/^p[a-z0-9]{7,}$/.test(p.id) ? parseInt(p.id.slice(1), 36) : 0);
@@ -70,10 +85,20 @@ function badgeOf(p){
   if (left != null) return [left === 1 ? "¡Última unidad!" : `¡Quedan ${left}!`, "warn"];
   if (isTop(p)) return ["Más vendido", ""];
   if (p.badge === "nuevo") return ["Nuevo", "new"];
+  if (isKit(p)) return ["Kit", "kit"];
   return null;
 }
 function priceHTML(p){
-  return p.price ? `<span class="price"><small>RD$</small>${fmt(p.price)}</span>` : `<span class="price ask">Precio por DM</span>`;
+  if (!p.price) return `<span class="price ask">Precio por DM</span>`;
+  const was = isKit(p) ? kitRegular(p) : 0;
+  const main = `<span class="price"><small>RD$</small>${fmt(p.price)}</span>`;
+  return was > p.price ? `<span class="pw">${main}<s class="was">${money(was)}</s></span>` : main;
+}
+// A kit without its own photo shows its products' photos together.
+function kitCollage(p){
+  const shots = kitParts(p).map(k => photoURL(k.p)).filter(Boolean).slice(0, 4);
+  if (!shots.length) return "";
+  return `<span class="kit-collage n${shots.length}">${shots.map(u => `<img src="${esc(u)}" alt="" loading="lazy">`).join("")}</span>`;
 }
 function card(p, extra){
   const tones = p.tones && p.tones.length
@@ -82,19 +107,32 @@ function card(p, extra){
   const badge = b ? `<span class="badge ${b[1]}">${b[0]}</span>` : "";
   const visual = photoURL(p)
     ? `<img src="${esc(photoURL(p))}" alt="${esc(p.brand)} ${esc(p.name)}" loading="lazy">`
-    : drawing(p, "draw");
+    : (isKit(p) && kitCollage(p)) || drawing(p, "draw");
+  const parts = isKit(p) ? kitParts(p) : [];
+  const kitLine = parts.length ? `<span class="kit-line">${parts.reduce((s, k) => s + k.qty, 0)} productos${kitRegular(p) > p.price && p.price ? ` · ahorras ${money(kitRegular(p) - p.price)}` : ""}</span>` : "";
   const add = isOut(p) ? "" : `<button class="plus" type="button" data-add="${esc(p.id)}" aria-label="Agregar ${esc(p.name)} al carrito">+</button>`;
   return `<article class="card ${extra || ""}">
     <button class="card-hit" type="button" data-open="${esc(p.id)}" aria-label="Ver ${esc(p.brand)} ${esc(p.name)}">
       <span class="visual">${visual}${badge}</span>
-      <span class="body"><span class="brand-s">${esc(p.brand)}</span><span class="name">${esc(p.name)}</span>${tones}</span>
+      <span class="body"><span class="brand-s">${esc(p.brand)}</span><span class="name">${esc(p.name)}</span>${tones}${kitLine}</span>
     </button>
     <div class="foot">${priceHTML(p)}${add}</div>
   </article>`;
 }
+/* Search ignores accents and case and looks in brand, name, type, description and kit contents. */
+const norm = t => String(t || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+let query = "";
+function matches(p, q){
+  if (!q) return true;
+  const hay = norm([p.brand, p.name, p.kind, p.desc, CATS[p.cat], ...(p.tones || []).map(t => t[0]), ...kitParts(p).map(k => k.p.brand + " " + k.p.name)].join(" "));
+  return q.split(/\s+/).filter(Boolean).every(w => hay.includes(w));
+}
 function render(list){
-  const shown = list.filter(p => filter === "todo" || p.cat === filter);
-  $("grid").innerHTML = shown.length ? shown.map(p => card(p)).join("") : `<p class="empty">Pronto tendremos productos aquí.</p>`;
+  const q = norm(query.trim());
+  const shown = list.filter(p => (filter === "todo" || p.cat === filter) && matches(p, q));
+  $("grid").innerHTML = shown.length ? shown.map(p => card(p)).join("")
+    : q ? `<div class="empty"><p>No encontramos “${esc(query.trim())}”.</p><button class="btn ghost sm" type="button" id="qReset">Ver todos los productos</button></div>`
+    : `<p class="empty">Pronto tendremos productos aquí.</p>`;
   $("countLabel").textContent = shown.length ? `${shown.length} producto${shown.length === 1 ? "" : "s"}` : "";
   document.querySelectorAll("#cats .chip").forEach(b => {
     const f = b.dataset.f;
@@ -172,6 +210,16 @@ function renderHero(){
 $("heroCta").addEventListener("click", () => { const p = products.find(x => x.id === $("heroCta").dataset.open); if (p) openSheet(p); });
 $("heroArt").addEventListener("click", () => { const p = products.find(x => x.id === $("heroArt").dataset.open); if (p) openSheet(p); });
 document.querySelectorAll("#cats .chip").forEach(b => b.addEventListener("click", () => { filter = b.dataset.f; render(products); }));
+let searchTimer;
+$("q").addEventListener("input", () => {
+  $("qClear").hidden = !$("q").value;
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => { query = $("q").value; render(products); }, 120);
+});
+$("q").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); $("q").blur(); } });
+function clearSearch(){ $("q").value = ""; query = ""; $("qClear").hidden = true; filter = "todo"; render(products); }
+$("qClear").onclick = () => { clearSearch(); $("q").focus(); };
+$("grid").addEventListener("click", e => { if (e.target.closest("#qReset")) clearSearch(); });
 
 function quickAdd(p){
   if (p.tones && p.tones.length) { openSheet(p); return; }
@@ -194,7 +242,16 @@ function openSheet(p){
   // The whole photo shows (contain); a blurred copy fills the space around it.
   $("sheetPhoto").innerHTML = photoURL(p)
     ? `<img class="sheet-bg" src="${esc(photoURL(p))}" alt="" aria-hidden="true"><img class="sheet-img" src="${esc(photoURL(p))}" alt="${esc(p.brand)} ${esc(p.name)}">`
-    : drawing(p, "draw");
+    : (isKit(p) && kitCollage(p)) || drawing(p, "draw");
+  const parts = isKit(p) ? kitParts(p) : [];
+  $("sheetKit").hidden = !parts.length;
+  if (parts.length) {
+    const reg = kitRegular(p);
+    $("sheetKit").innerHTML = `<h3>Este kit incluye</h3><ul>${parts.map(k => `<li>
+      <span class="thumb">${photoURL(k.p) ? `<img src="${esc(photoURL(k.p))}" alt="">` : drawing(k.p, "")}</span>
+      <span><b>${k.qty > 1 ? k.qty + " × " : ""}${esc(k.p.name)}</b><small>${esc(k.p.brand || "")}${k.p.price ? " · " + money(k.p.price) : ""}</small></span>
+    </li>`).join("")}</ul>${reg > p.price && p.price ? `<p class="kit-save">Por separado: ${money(reg)} · <b>ahorras ${money(reg - p.price)}</b></p>` : ""}`;
+  }
   $("sheetKind").textContent = p.kind || ""; $("sheetKind").hidden = !p.kind;
   $("sheetBrand").textContent = p.brand || "";
   $("sheetName").textContent = p.name;
@@ -570,7 +627,8 @@ function waMessage(o){
   if (cu.ref) L.push(`Referencia: ${cu.ref}`);
   L.push("");
   L.push(`*Productos*`);
-  c.ls.forEach(l => L.push(`• ${l.qty} x ${l.p.brand} ${l.p.name}${l.tone ? " (" + l.tone + ")" : ""} — ${l.total == null ? "precio por confirmar" : money(l.total)}`));
+  const kitNote = p => isKit(p) ? ` (Kit: ${kitParts(p).map(k => (k.qty > 1 ? k.qty + " " : "") + k.p.name).join(" + ")})` : "";
+  c.ls.forEach(l => L.push(`• ${l.qty} x ${l.p.brand ? l.p.brand + " " : ""}${l.p.name}${l.tone ? " (" + l.tone + ")" : kitNote(l.p)} — ${l.total == null ? "precio por confirmar" : money(l.total)}`));
   L.push("");
   L.push(`Subtotal: ${money(c.subtotal)}`);
   if (c.promo && c.promo.ok) L.push(`Código ${c.promo.code}: ${c.discount ? "−" + money(c.discount) : promoLabel(c.promo.def)}`);
@@ -625,10 +683,10 @@ async function drawInvoice(o){
   y += 20; rule(y);
   c.ls.forEach(l => {
     y += 48;
-    const name = `${l.qty} × ${l.p.brand} ${l.p.name}`;
+    const name = `${l.qty} × ${[l.p.brand, l.p.name].filter(Boolean).join(" ")}`;
     text(fit(name, W - 2 * P - 220, `500 28px ${SANS}`), P, y, `500 28px ${SANS}`, C.ink);
     text(l.total == null ? "Por confirmar" : money(l.total), W - P, y, `500 28px ${SANS}`, C.cocoa, "right");
-    const sub = [l.tone, l.p.price ? money(l.p.price) + " c/u" : ""].filter(Boolean).join(" · ");
+    const sub = [l.tone, isKit(l.p) ? "Incluye: " + kitParts(l.p).map(k => (k.qty > 1 ? k.qty + " " : "") + k.p.name).join(" + ") : "", l.p.price ? money(l.p.price) + " c/u" : ""].filter(Boolean).join(" · ");
     if (sub) text(fit(sub, W - 2 * P - 220, `400 22px ${SANS}`), P, y + 28, `400 22px ${SANS}`, C.muted);
     y += 28;
   });

@@ -66,7 +66,7 @@ function renderAdminList(){
   if (!draft.length) { $("adminList").innerHTML = `<li class="empty">Aún no hay productos. Toca "Nuevo producto".</li>`; return; }
   $("adminList").innerHTML = draft.map((p, i) => `<li class="arow" data-i="${i}">
     <div class="thumb">${photoURL(p) ? `<img src="${esc(photoURL(p))}" alt="">` : drawing(p)}</div>
-    <div class="info"><b>${esc(p.name)}</b><span>${esc(p.brand)} · ${p.price ? money(p.price) : "Precio por DM"}${hasStock(p) ? " · Quedan " + p.stock : ""}${p.badge === "top" || (!p.badge && p.featured) ? " · ★ Más vendido" : p.badge === "nuevo" ? " · Nuevo" : ""}${p.sold || (hasStock(p) && Number(p.stock) <= 0) ? " · Agotado" : ""}</span></div>
+    <div class="info"><b>${Array.isArray(p.kit) ? "Kit · " : ""}${esc(p.name)}</b><span>${Array.isArray(p.kit) ? p.kit.length + " productos" : esc(p.brand)} · ${p.price ? money(p.price) : "Precio por DM"}${hasStock(p) ? " · Quedan " + p.stock : ""}${p.badge === "top" || (!p.badge && p.featured) ? " · ★ Más vendido" : p.badge === "nuevo" ? " · Nuevo" : ""}${p.sold || (hasStock(p) && Number(p.stock) <= 0) ? " · Agotado" : ""}</span></div>
     <div class="acts">
       <button class="icon-btn" type="button" data-act="top" aria-label="Poner de primero" title="Poner de primero" ${i === 0 ? "disabled" : ""}>⤒</button>
       <button class="icon-btn" type="button" data-act="up" aria-label="Subir" ${i === 0 ? "disabled" : ""}>↑</button>
@@ -164,6 +164,7 @@ function setTab(t){
   $("listView").hidden = t !== "products";
   $("settingsView").hidden = t !== "settings";
   $("newProduct").hidden = t !== "products";
+  $("newKit").hidden = t !== "products";
   $("listFoot").hidden = t === "sale";
 }
 $("tabProducts").onclick = () => setTab("products");
@@ -184,10 +185,17 @@ function setPhotoPreview(src, isNew){
   $("photoPrev").innerHTML = formPhoto ? `<img src="${esc(formPhoto)}" alt="Vista previa">` : "Sin foto";
   $("removePhoto").hidden = !formPhoto;
 }
-function openForm(i){
+let formIsKit = false;
+function openForm(i, asKit){
   editing = i;
-  const p = i == null ? {brand:"",name:"",kind:"",cat:"maquillaje",price:null,desc:"",tones:[],photo:"",sold:false} : draft[i];
-  $("formTitle").textContent = i == null ? "Nuevo producto" : "Editar producto";
+  const p = i == null
+    ? (asKit ? {brand:"Mielle",name:"",kind:"Kit",cat:"kits",price:null,desc:"",tones:[],photo:"",sold:false,kit:[]} : {brand:"",name:"",kind:"",cat:"maquillaje",price:null,desc:"",tones:[],photo:"",sold:false})
+    : draft[i];
+  formIsKit = Array.isArray(p.kit);
+  $("formTitle").textContent = i == null ? (formIsKit ? "Nuevo kit" : "Nuevo producto") : (formIsKit ? "Editar kit" : "Editar producto");
+  $("kitField").hidden = !formIsKit; $("toneField").hidden = formIsKit; $("stockField").hidden = formIsKit;
+  $("kitRows").innerHTML = "";
+  if (formIsKit) { (p.kit.length ? p.kit : [{id: "", qty: 1}, {id: "", qty: 1}]).forEach(k => kitRow(k.id, k.qty)); updateKitSum(); }
   $("fBrand").value = p.brand || ""; $("fName").value = p.name || ""; $("fKind").value = p.kind || "";
   $("fPrice").value = p.price ?? ""; $("fCat").value = p.cat || "maquillaje"; $("fDesc").value = p.desc || "";
   $("fSold").checked = !!p.sold; $("fBadge").value = p.badge || (p.featured ? "top" : ""); $("fStock").value = hasStock(p) ? p.stock : ""; $("fHow").value = p.howto || ""; $("fPhoto").value = "";
@@ -230,7 +238,10 @@ $("pform").addEventListener("submit", e => {
   const tones = [...$("toneList").querySelectorAll(".tone-row")]
     .map(r => [r.querySelector("input[type=text]").value.trim(), r.querySelector("input[type=color]").value])
     .filter(t => t[0]);
-  const base = editing == null ? {id: "p" + Date.now().toString(36), icon: "bottle", photo: "", createdAt: Date.now()} : draft[editing];
+  const kit = formIsKit ? readKit() : null;
+  if (formIsKit && kit.reduce((s, k) => s + k.qty, 0) < 2) { setStatus("Un kit necesita al menos 2 productos.", true); return; }
+  if (formIsKit && !raw) { setStatus("Escribe el precio del kit.", true); $("fPrice").focus(); return; }
+  const base = editing == null ? {id: "p" + Date.now().toString(36), icon: "jar", photo: "", createdAt: Date.now()} : draft[editing];
   const stockRaw = String($("fStock").value).replace(/[^\d]/g, "");
   const p = Object.assign({}, base, {
     brand: $("fBrand").value.trim(), name, kind: $("fKind").value.trim(),
@@ -239,6 +250,7 @@ $("pform").addEventListener("submit", e => {
     stock: stockRaw === "" ? null : Number(stockRaw)
   });
   delete p.featured;
+  if (formIsKit) { p.kit = kit; p.tones = []; p.stock = null; } else delete p.kit;
   if (formPhotoIsNew) p._newPhoto = formPhoto;
   else { delete p._newPhoto; if (!formPhoto) p.photo = ""; }
   if (editing == null) draft.unshift(p); else draft[editing] = p;
@@ -246,6 +258,36 @@ $("pform").addEventListener("submit", e => {
   setStatus(`"${name}" listo. Toca "Guardar cambios" para que se vea en la tienda.`);
 });
 $("newProduct").onclick = () => openForm(null);
+$("newKit").onclick = () => openForm(null, true);
+
+/* ---------- Kits ---------- */
+// A kit lists products already in the store; its photo is optional (the store shows its products' photos).
+function kitOptions(selected){
+  const self = editing == null ? null : draft[editing].id;
+  return `<option value="">Elige un producto</option>` + draft.filter(p => !Array.isArray(p.kit) && p.id !== self)
+    .map(p => `<option value="${esc(p.id)}" ${p.id === selected ? "selected" : ""}>${esc(p.brand ? p.brand + " · " : "")}${esc(p.name)}${p.price ? " — " + money(p.price) : ""}</option>`).join("");
+}
+function kitRow(id, qty){
+  const row = document.createElement("div"); row.className = "kit-row";
+  row.innerHTML = `<select aria-label="Producto del kit">${kitOptions(id)}</select><input type="number" min="1" step="1" value="${Number(qty) || 1}" aria-label="Cantidad"><button class="icon-btn" type="button" aria-label="Quitar del kit">×</button>`;
+  row.querySelector("button").onclick = () => { row.remove(); updateKitSum(); };
+  row.addEventListener("input", updateKitSum); row.addEventListener("change", updateKitSum);
+  $("kitRows").appendChild(row);
+}
+function readKit(){
+  return [...$("kitRows").querySelectorAll(".kit-row")].map(r => ({id: r.querySelector("select").value, qty: Math.max(1, Number(r.querySelector("input").value) || 1)})).filter(k => k.id);
+}
+function updateKitSum(){
+  const items = readKit();
+  const sum = items.reduce((s, k) => { const p = draft.find(x => x.id === k.id); return s + (p && p.price ? p.price * k.qty : 0); }, 0);
+  const price = Number(String($("fPrice").value).replace(/[^\d]/g, "")) || 0;
+  const out = items.map(k => draft.find(x => x.id === k.id)).filter(p => p && (p.sold || (hasStock(p) && Number(p.stock) <= 0)));
+  $("kitSum").textContent = !items.length ? "Agrega al menos 2 productos." :
+    `Por separado: ${money(sum)}${price ? (price < sum ? ` · La clienta ahorra ${money(sum - price)}` : " · Ojo: el precio del kit no es menor que por separado") : ""}. La cantidad disponible se calcula sola con la de cada producto.` +
+    (out.length ? ` Ojo: ${out.map(p => p.name).join(", ")} está agotado, así que el kit saldrá agotado.` : "");
+}
+$("addKitItem").onclick = () => { kitRow("", 1); };
+$("fPrice").addEventListener("input", () => { if (formIsKit) updateKitSum(); });
 
 /* ---------- Save to GitHub ---------- */
 $("publishBtn").onclick = () => save();
@@ -337,7 +379,14 @@ function parseOrder(text){
 
 $("saleCheck").onclick = () => {
   const text = $("saleText").value;
-  const {order, items, unknown} = parseOrder(text);
+  const parsed = parseOrder(text);
+  const {order, unknown} = parsed;
+  // A kit sold takes stock from each product inside it.
+  const items = [];
+  parsed.items.forEach(({p, qty}) => {
+    const parts = Array.isArray(p.kit) ? p.kit.map(k => ({p: draft.find(x => x.id === k.id), qty: qty * (Number(k.qty) || 1)})).filter(k => k.p) : [{p, qty}];
+    parts.forEach(it => { const prev = items.find(i => i.p.id === it.p.id); if (prev) prev.qty += it.qty; else items.push(it); });
+  });
   saleMatches = items; saleOrder = order;
   const done = order && (draftSettings.confirmedOrders || []).includes(order);
   let h = "";

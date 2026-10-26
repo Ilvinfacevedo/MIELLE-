@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex">
+<link rel="icon" href="/brand/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/brand/icon-180.png">
 <title>Mielle · Administrar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -175,12 +177,19 @@
             <option value="cuerpo">Cuerpo y fragancias</option>
             <option value="accesorios">Accesorios</option>
             <option value="bienestar">Bienestar</option>
+            <option value="kits">Kits y regalos</option>
           </select>
         </div>
       </div>
       <div class="field"><label for="fDesc">Descripción</label><textarea id="fDesc" placeholder="Brillo jugoso y labios hidratados."></textarea></div>
       <div class="field"><label for="fHow">Cómo usarlo (opcional)</label><textarea id="fHow" placeholder="Aplica directamente sobre los labios. Reaplica cuando quieras más brillo."></textarea><small>Sale en la ficha del producto.</small></div>
-      <div class="field">
+      <div class="field kit-field" id="kitField" hidden>
+        <span class="lbl">Productos que trae el kit</span>
+        <div class="kit-rows" id="kitRows"></div>
+        <button class="btn ghost sm" type="button" id="addKitItem" style="justify-self:start">Agregar producto al kit</button>
+        <small id="kitSum"></small>
+      </div>
+      <div class="field" id="toneField">
         <span class="lbl">Tonos (opcional)</span>
         <div class="tone-list" id="toneList"></div>
         <button class="btn ghost sm" type="button" id="addTone" style="justify-self:start">Agregar tono</button>
@@ -193,7 +202,7 @@
             <option value="top">Más vendido (sale en "Lo más vendido")</option>
           </select>
         </div>
-        <div class="field"><label for="fStock">Cantidad disponible</label><input type="number" id="fStock" inputmode="numeric" min="0" step="1" placeholder="Sin control"><small>Vacío = no se controla. En 0 se marca agotado.</small></div>
+        <div class="field" id="stockField"><label for="fStock">Cantidad disponible</label><input type="number" id="fStock" inputmode="numeric" min="0" step="1" placeholder="Sin control"><small>Vacío = no se controla. En 0 se marca agotado.</small></div>
       </div>
       <label class="check"><input type="checkbox" id="fSold"> Agotado</label>
       <div class="drawer-foot">
@@ -204,6 +213,7 @@
 
   <div class="drawer-foot" id="listFoot">
     <button class="btn ghost" type="button" id="newProduct">Nuevo producto</button>
+    <button class="btn ghost" type="button" id="newKit">Nuevo kit</button>
     <button class="btn" type="button" id="publishBtn" disabled>Guardar cambios</button>
   </div>
 </div>
