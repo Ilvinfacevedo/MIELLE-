@@ -1,6 +1,23 @@
 {
   "products": [
     {
+      "id": "pmvzufcwo",
+      "icon": "jar",
+      "photo": "img/pmvzufcwo-mvzufghj.jpg",
+      "createdAt": 1793659283736,
+      "brand": "eos",
+      "name": "Cozy Comfort 24H Moisture Body Lotion – Vanilla Cashmere.",
+      "kind": "Piel",
+      "cat": "cuerpo",
+      "price": 1500,
+      "desc": "• Loción corporal con 24 horas de hidratación.\n• Aroma delicioso a vainilla y cashmere.\n• Deja la piel suave, sedosa y humectada.\n• Enriquecida con manteca de karité natural.\n• Ideal para consentir y cuidar tu piel diariamente.\n• Apta para piel sensible.",
+      "tones": [],
+      "sold": false,
+      "badge": "top",
+      "howto": "• Aplica sobre la piel limpia, preferiblemente después de bañarte.\n• Coloca una cantidad adecuada en tus manos.\n• Masajea suavemente por todo el cuerpo hasta que se absorba.\n• Concéntrate en las zonas más secas, como codos, rodillas y piernas.\n• Úsala diariamente para mantener tu piel suave e hidratada.",
+      "stock": 1
+    },
+    {
       "id": "pmvoetxd2",
       "icon": "bottle",
       "photo": "img/pmvoetxd2-mvoeu010.jpg",
