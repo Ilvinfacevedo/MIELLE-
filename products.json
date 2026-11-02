@@ -1,20 +1,20 @@
 {
   "products": [
     {
-      "id": "pmvzufcwo",
+      "id": "pmvzujytu",
       "icon": "jar",
-      "photo": "img/pmvzufcwo-mvzufghj.jpg",
-      "createdAt": 1793659283736,
+      "photo": "img/pmvzujytu-mvzuk0ra.jpg",
+      "createdAt": 1793659498770,
       "brand": "eos",
-      "name": "Cozy Comfort 24H Moisture Body Lotion – Vanilla Cashmere.",
+      "name": "Pumpkin Chai – Body Lotion",
       "kind": "Piel",
-      "cat": "cuerpo",
-      "price": 1500,
-      "desc": "• Loción corporal con 24 horas de hidratación.\n• Aroma delicioso a vainilla y cashmere.\n• Deja la piel suave, sedosa y humectada.\n• Enriquecida con manteca de karité natural.\n• Ideal para consentir y cuidar tu piel diariamente.\n• Apta para piel sensible.",
+      "cat": "maquillaje",
+      "price": 1600,
+      "desc": "• Loción corporal con 24 horas de hidratación.\n• Delicioso aroma a calabaza especiada.\n• Notas de leche espumosa y nuez moscada.\n• Enriquecida con manteca de karité natural.\n• Deja la piel suave, sedosa y humectada.\n• Ideal para disfrutar de un aroma cálido y acogedor.\n• Apta para piel sensible.",
       "tones": [],
       "sold": false,
       "badge": "top",
-      "howto": "• Aplica sobre la piel limpia, preferiblemente después de bañarte.\n• Coloca una cantidad adecuada en tus manos.\n• Masajea suavemente por todo el cuerpo hasta que se absorba.\n• Concéntrate en las zonas más secas, como codos, rodillas y piernas.\n• Úsala diariamente para mantener tu piel suave e hidratada.",
+      "howto": "• Aplica sobre la piel limpia, preferiblemente después de bañarte.\n• Coloca una cantidad adecuada en tus manos.\n• Masajea suavemente por todo el cuerpo hasta que se absorba.\n• Presta especial atención a las zonas más secas, como codos, rodillas y piernas.\n• Úsala diariamente para mantener tu piel suave e hidratada.",
       "stock": 1
     },
     {
