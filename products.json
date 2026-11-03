@@ -1,6 +1,23 @@
 {
   "products": [
     {
+      "id": "pmw0wc1uk",
+      "icon": "jar",
+      "photo": "img/pmw0wc1uk-mw0wc4oo.jpg",
+      "createdAt": 1793722954844,
+      "brand": "eos",
+      "name": "Shea Better Sensitive Body Lotion",
+      "kind": "Piel",
+      "cat": "cuerpo",
+      "price": 1500,
+      "desc": "• Loción corporal hidratante para piel sensible.\n• Libre de fragancias y perfumes añadidos.\n• Proporciona hasta 48 horas de hidratación.\n• Ayuda a fortalecer la barrera natural de la piel.\n• Deja la piel suave, nutrida e hidratada.\n• Textura cremosa y agradable.\n• Ideal para el uso diario.\n• Dermatológicamente recomendada.",
+      "tones": [],
+      "sold": false,
+      "badge": "top",
+      "howto": "• Aplicar sobre la piel limpia y seca.\n• Colocar una cantidad adecuada de crema en las manos.\n• Masajear suavemente hasta que se absorba por completo.\n• Prestar atención a las zonas más secas del cuerpo.\n• Utilizar diariamente, preferiblemente después del baño.\n• Reaplicar cuando la piel necesite hidratación.",
+      "stock": 1
+    },
+    {
       "id": "pmvzujytu",
       "icon": "jar",
       "photo": "img/pmvzujytu-mvzuk0ra.jpg",
