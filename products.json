@@ -1,6 +1,23 @@
 {
   "products": [
     {
+      "id": "pmw0x3lgf",
+      "icon": "jar",
+      "photo": "img/pmw0x3lgf-mw0x3od6.jpg",
+      "createdAt": 1793724239967,
+      "brand": "e.l.f",
+      "name": "Luminous Putty Blush",
+      "kind": "Piel",
+      "cat": "maquillaje",
+      "price": 900,
+      "desc": "• Rubor en crema con acabado luminoso.\n• Aporta un toque de color natural a las mejillas.\n• Tiene una textura suave y cremosa.\n• Se transforma fácilmente al difuminarlo.\n• Deja un acabado radiante y saludable.\n• Fácil de aplicar y construir en capas.\n• Se integra perfectamente con la piel.\n• Ideal para conseguir un efecto de mejillas sonrojadas y luminosas.",
+      "tones": [],
+      "sold": false,
+      "badge": "nuevo",
+      "howto": "• Tomar una pequeña cantidad de producto con los dedos o una brocha.\n• Aplicar sobre las mejillas, especialmente en la zona de los pómulos.\n• Difuminar suavemente con movimientos circulares.\n• Añadir más producto si deseas intensificar el color.\n• Puedes utilizarlo sobre la piel directamente o encima de tu base de maquillaje.",
+      "stock": null
+    },
+    {
       "id": "pmw0wioyn",
       "icon": "jar",
       "photo": "img/pmw0wioyn-mw0wiqod.jpg",
