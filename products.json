@@ -1,6 +1,23 @@
 {
   "products": [
     {
+      "id": "pmw0xap6i",
+      "icon": "jar",
+      "photo": "img/pmw0xap6i-mw0xar0z.jpg",
+      "createdAt": 1793724571386,
+      "brand": "NYX",
+      "name": "Jelly Job Full-Bodied Shine Gloss",
+      "kind": "Labios",
+      "cat": "maquillaje",
+      "price": 750,
+      "desc": "• Brillo labial de alto impacto.\n• Aporta un acabado brillante y luminoso.\n• Su textura tipo gelatina ofrece una sensación suave.\n• Deja los labios con una apariencia jugosa.\n• Contiene destellos brillantes que realzan los labios.\n• Ayuda a mantener los labios suaves.\n• Fácil de aplicar gracias a su aplicador.\n• Ideal para darle un toque especial a cualquier maquillaje.",
+      "tones": [],
+      "sold": false,
+      "badge": "nuevo",
+      "howto": "• Aplicar directamente sobre los labios limpios y secos.\n• Deslizar el aplicador desde el centro hacia las comisuras.\n• Distribuir uniformemente el producto.\n• Aplicar una segunda capa para intensificar el brillo.\n• Puedes usarlo solo o sobre tu labial favorito.\n• Reaplicar cuando desees recuperar el brillo.",
+      "stock": null
+    },
+    {
       "id": "pmw0x3lgf",
       "icon": "jar",
       "photo": "img/pmw0x3lgf-mw0x3od6.jpg",
