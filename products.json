@@ -1,6 +1,23 @@
 {
   "products": [
     {
+      "id": "pmw11588a",
+      "icon": "jar",
+      "photo": "img/pmw11588a-mw115ae3.jpg",
+      "createdAt": 1793731034602,
+      "brand": "eos",
+      "name": "Crème de Pistachio Cashmere Body Mist",
+      "kind": "Piel",
+      "cat": "cuerpo",
+      "price": 1600,
+      "desc": "* Bruma corporal con delicioso aroma a pistacho.\n* Fragancia dulce, cremosa y cálida.\n* Deja un aroma agradable y delicado sobre la piel.\n* Enriquecida con ácido hialurónico.\n* Ayuda a mantener la piel hidratada.\n* Ideal para usar todos los días.\n* Presentación de 177 ml (6 fl oz).",
+      "tones": [],
+      "sold": false,
+      "badge": "top",
+      "howto": "Agitar suavemente antes de usar.\n* Aplicar sobre la piel limpia y seca.\n* Pulverizar a una distancia de 15-20 cm.\n* Aplicar en cuello, brazos y cuerpo.\n* Reaplicar durante el día cuando desees refrescar tu aroma.",
+      "stock": null
+    },
+    {
       "id": "pmw0xxakf",
       "icon": "jar",
       "photo": "img/pmw0xxakf-mw0xxcvx.jpg",
