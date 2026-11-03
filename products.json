@@ -1,23 +1,6 @@
 {
   "products": [
     {
-      "id": "pmw0wo6n6",
-      "icon": "jar",
-      "photo": "img/pmw0wo6n6-mw0wo8x5.jpg",
-      "createdAt": 1793723520930,
-      "brand": "eos",
-      "name": "Cozy Comfort",
-      "kind": "Piel",
-      "cat": "cuerpo",
-      "price": 1500,
-      "desc": "• Loción corporal hidratante con aroma a vainilla y cashmere.\n• Proporciona hasta 24 horas de hidratación.\n• Enriquecida con manteca de karité.\n• Ayuda a mantener la piel suave y nutrida.\n• Deja una sensación cremosa y confortable.\n• Ideal para consentir y cuidar la piel diariamente.\n• Aroma cálido, dulce y acogedor.\n• Perfecta para quienes aman los aromas dulces y delicados.",
-      "tones": [],
-      "sold": false,
-      "badge": "top",
-      "howto": "• Aplicar sobre la piel limpia y seca.\n• Colocar una cantidad adecuada en las manos.\n• Distribuir por todo el cuerpo con movimientos circulares.\n• Masajear suavemente hasta su completa absorción.\n• Prestar atención a las zonas más secas.\n• Utilizar diariamente, especialmente después del baño.\n• Reaplicar cuando la piel necesite hidratación.",
-      "stock": 1
-    },
-    {
       "id": "pmw0wioyn",
       "icon": "jar",
       "photo": "img/pmw0wioyn-mw0wiqod.jpg",
@@ -140,7 +123,7 @@
       "icon": "bottle",
       "photo": "img/pmvnylk7p-mvnylma4.jpg",
       "createdAt": 1792940697493,
-      "brand": "",
+      "brand": "e.l.f",
       "name": "Camo Liquid Blush",
       "kind": "Mejillas",
       "cat": "maquillaje",
