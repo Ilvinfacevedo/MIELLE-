@@ -1,6 +1,23 @@
 {
   "products": [
     {
+      "id": "pmw0xxakf",
+      "icon": "jar",
+      "photo": "img/pmw0xxakf-mw0xxcvx.jpg",
+      "createdAt": 1793725625535,
+      "brand": "e.l.f",
+      "name": "Hydrating Camo Concealer",
+      "kind": "Piel",
+      "cat": "maquillaje",
+      "price": 650,
+      "desc": "• Corrector líquido de alta cobertura.\n• Acabado satinado y natural.\n• Fórmula hidratante que ayuda a evitar la apariencia de resequedad.\n• Ayuda a cubrir ojeras, manchas e imperfecciones.\n• Aporta luminosidad a la zona debajo de los ojos.\n• Textura cremosa y fácil de difuminar.\n• Permite conseguir una cobertura uniforme.\n• Ideal para un maquillaje impecable.",
+      "tones": [],
+      "sold": false,
+      "badge": "nuevo",
+      "howto": "• Aplicar una pequeña cantidad debajo de los ojos y en las zonas que deseas corregir.\n• Difuminar con una esponja, brocha o con las yemas de los dedos.\n• Distribuir suavemente hasta integrar con la piel.\n• Aplicar más producto si deseas mayor cobertura.\n• Sellar con polvo suelto para prolongar el acabado.",
+      "stock": null
+    },
+    {
       "id": "pmw0xljnn",
       "icon": "jar",
       "photo": "img/pmw0xljnn-mw0xlm58.jpg",
