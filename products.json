@@ -1,6 +1,23 @@
 {
   "products": [
     {
+      "id": "pmw0wioyn",
+      "icon": "jar",
+      "photo": "img/pmw0wioyn-mw0wiqod.jpg",
+      "createdAt": 1793723264735,
+      "brand": "NYX",
+      "name": "Smushy Matte Lip Balm",
+      "kind": "Labios",
+      "cat": "maquillaje",
+      "price": 750,
+      "desc": "• Bálsamo labial con acabado mate.\n• Aporta color a los labios.\n• Textura suave y cremosa.\n• Ayuda a mantener los labios hidratados.\n• Deja una sensación cómoda y ligera.\n• Fácil de aplicar y difuminar.\n• Ideal para conseguir un look natural o más definido.\n• Perfecto para usar a diario.",
+      "tones": [],
+      "sold": false,
+      "badge": "nuevo",
+      "howto": "• Aplicar directamente sobre los labios limpios y secos.\n• Deslizar el aplicador suavemente para distribuir el producto.\n• Añadir más capas si deseas intensificar el color.\n• Difuminar ligeramente con los dedos para un acabado más suave.\n• Reaplicar durante el día cuando sea necesario.",
+      "stock": null
+    },
+    {
       "id": "pmw0wc1uk",
       "icon": "jar",
       "photo": "img/pmw0wc1uk-mw0wc4oo.jpg",
