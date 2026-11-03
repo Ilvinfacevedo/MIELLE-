@@ -1,20 +1,20 @@
 {
   "products": [
     {
-      "id": "pmw0xap6i",
+      "id": "pmw0xljnn",
       "icon": "jar",
-      "photo": "img/pmw0xap6i-mw0xar0z.jpg",
-      "createdAt": 1793724571386,
-      "brand": "NYX",
-      "name": "Jelly Job Full-Bodied Shine Gloss",
-      "kind": "Labios",
+      "photo": "img/pmw0xljnn-mw0xlm58.jpg",
+      "createdAt": 1793725077443,
+      "brand": "Beauty Creations",
+      "name": "Beauty Creations Sunless & Sun-Kissed Perfecting Bronzer Matte.",
+      "kind": "Piel",
       "cat": "maquillaje",
-      "price": 750,
-      "desc": "• Brillo labial de alto impacto.\n• Aporta un acabado brillante y luminoso.\n• Su textura tipo gelatina ofrece una sensación suave.\n• Deja los labios con una apariencia jugosa.\n• Contiene destellos brillantes que realzan los labios.\n• Ayuda a mantener los labios suaves.\n• Fácil de aplicar gracias a su aplicador.\n• Ideal para darle un toque especial a cualquier maquillaje.",
+      "price": 650,
+      "desc": "• Bronceador en polvo con acabado mate.\n• Aporta calidez y dimensión al rostro.\n• Ayuda a definir y realzar los rasgos faciales.\n• Textura suave y fácil de difuminar.\n• Permite construir la intensidad del color.\n• Deja un acabado natural y uniforme.\n• Ideal para conseguir un efecto bronceado.\n• Perfecto para complementar cualquier maquillaje.",
       "tones": [],
       "sold": false,
       "badge": "nuevo",
-      "howto": "• Aplicar directamente sobre los labios limpios y secos.\n• Deslizar el aplicador desde el centro hacia las comisuras.\n• Distribuir uniformemente el producto.\n• Aplicar una segunda capa para intensificar el brillo.\n• Puedes usarlo solo o sobre tu labial favorito.\n• Reaplicar cuando desees recuperar el brillo.",
+      "howto": "• Tomar una pequeña cantidad con una brocha para bronceador.\n• Sacudir el exceso de producto.\n• Aplicar en los pómulos, frente y laterales del rostro.\n• Difuminar con movimientos suaves y circulares.\n• Añadir más producto hasta conseguir la intensidad deseada.\n• Utilizar solo o encima de la base de maquillaje.",
       "stock": null
     },
     {
