@@ -66,7 +66,7 @@ function renderAdminList(){
   if (!draft.length) { $("adminList").innerHTML = `<li class="empty">Aún no hay productos. Toca "Nuevo producto".</li>`; return; }
   $("adminList").innerHTML = draft.map((p, i) => `<li class="arow" data-i="${i}">
     <div class="thumb">${photoURL(p) ? `<img src="${esc(photoURL(p))}" alt="">` : drawing(p)}</div>
-    <div class="info"><b>${Array.isArray(p.kit) ? "Kit · " : ""}${esc(p.name)}</b><span>${Array.isArray(p.kit) ? p.kit.length + " productos" : esc(p.brand)} · ${p.price ? money(p.price) : "Precio por DM"}${hasStock(p) ? " · Quedan " + p.stock : ""}${p.badge === "top" || (!p.badge && p.featured) ? " · ★ Más vendido" : p.badge === "nuevo" ? " · Nuevo" : ""}${p.sold || (hasStock(p) && Number(p.stock) <= 0) ? " · Agotado" : ""}</span></div>
+    <div class="info"><b>${Array.isArray(p.kit) ? "Combo · " : ""}${esc(p.name)}</b><span>${Array.isArray(p.kit) ? p.kit.length + " artículos" : esc(p.brand)} · ${p.price ? money(p.price) : "Precio por DM"}${hasStock(p) ? " · Quedan " + p.stock : ""}${p.badge === "top" || (!p.badge && p.featured) ? " · ★ Más vendido" : p.badge === "nuevo" ? " · Nuevo" : ""}${p.sold || (hasStock(p) && Number(p.stock) <= 0) ? " · Agotado" : ""}</span></div>
     <div class="acts">
       <button class="icon-btn" type="button" data-act="top" aria-label="Poner de primero" title="Poner de primero" ${i === 0 ? "disabled" : ""}>⤒</button>
       <button class="icon-btn" type="button" data-act="up" aria-label="Subir" ${i === 0 ? "disabled" : ""}>↑</button>
@@ -189,13 +189,13 @@ let formIsKit = false;
 function openForm(i, asKit){
   editing = i;
   const p = i == null
-    ? (asKit ? {brand:"Mielle",name:"",kind:"Kit",cat:"kits",price:null,desc:"",tones:[],photo:"",sold:false,kit:[]} : {brand:"",name:"",kind:"",cat:"maquillaje",price:null,desc:"",tones:[],photo:"",sold:false})
+    ? (asKit ? {brand:"Mielle",name:"",kind:"Combo",cat:"kits",price:null,desc:"",tones:[],photo:"",sold:false,kit:[]} : {brand:"",name:"",kind:"",cat:"maquillaje",price:null,desc:"",tones:[],photo:"",sold:false})
     : draft[i];
   formIsKit = Array.isArray(p.kit);
-  $("formTitle").textContent = i == null ? (formIsKit ? "Nuevo kit" : "Nuevo producto") : (formIsKit ? "Editar kit" : "Editar producto");
+  $("formTitle").textContent = i == null ? (formIsKit ? "Nuevo combo" : "Nuevo producto") : (formIsKit ? "Editar combo" : "Editar producto");
   $("kitField").hidden = !formIsKit; $("toneField").hidden = formIsKit; $("stockField").hidden = formIsKit;
   $("kitRows").innerHTML = "";
-  if (formIsKit) { (p.kit.length ? p.kit : [{id: "", qty: 1}, {id: "", qty: 1}]).forEach(k => kitRow(k.id, k.qty)); updateKitSum(); }
+  if (formIsKit) { (p.kit.length ? p.kit : [{id: "", qty: 1}, {id: "", qty: 1}]).forEach(k => k.custom ? customRow(k) : kitRow(k.id, k.qty)); updateKitSum(); }
   $("fBrand").value = p.brand || ""; $("fName").value = p.name || ""; $("fKind").value = p.kind || "";
   $("fPrice").value = p.price ?? ""; $("fCat").value = p.cat || "maquillaje"; $("fDesc").value = p.desc || "";
   $("fSold").checked = !!p.sold; $("fBadge").value = p.badge || (p.featured ? "top" : ""); $("fStock").value = hasStock(p) ? p.stock : ""; $("fHow").value = p.howto || ""; $("fPhoto").value = "";
@@ -239,8 +239,9 @@ $("pform").addEventListener("submit", e => {
     .map(r => [r.querySelector("input[type=text]").value.trim(), r.querySelector("input[type=color]").value])
     .filter(t => t[0]);
   const kit = formIsKit ? readKit() : null;
-  if (formIsKit && kit.reduce((s, k) => s + k.qty, 0) < 2) { setStatus("Un kit necesita al menos 2 productos.", true); return; }
-  if (formIsKit && !raw) { setStatus("Escribe el precio del kit.", true); $("fPrice").focus(); return; }
+  if (formIsKit && kit.reduce((s, k) => s + k.qty, 0) < 2) { setStatus("Un combo necesita al menos 2 artículos.", true); return; }
+  if (formIsKit && kit.some(k => k.custom && (!k.name || !k.price))) { setStatus("A cada artículo nuevo ponle nombre y precio individual.", true); return; }
+  if (formIsKit && !raw) { setStatus("Escribe el precio del combo.", true); $("fPrice").focus(); return; }
   const base = editing == null ? {id: "p" + Date.now().toString(36), icon: "jar", photo: "", createdAt: Date.now()} : draft[editing];
   const stockRaw = String($("fStock").value).replace(/[^\d]/g, "");
   const p = Object.assign({}, base, {
@@ -274,19 +275,51 @@ function kitRow(id, qty){
   row.addEventListener("input", updateKitSum); row.addEventListener("change", updateKitSum);
   $("kitRows").appendChild(row);
 }
-function readKit(){
-  return [...$("kitRows").querySelectorAll(".kit-row")].map(r => ({id: r.querySelector("select").value, qty: Math.max(1, Number(r.querySelector("input").value) || 1)})).filter(k => k.id);
+// An item uploaded only for this combo: its own photo, name and individual price.
+function customRow(item){
+  item = item || {};
+  const row = document.createElement("div"); row.className = "kit-row custom";
+  row.dataset.id = item.id || "ci" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+  row.dataset.path = item.photo || ""; row.dataset.photo = item._newPhoto || "";
+  const src = item._newPhoto || (item.photo ? "/" + item.photo : "");
+  row.innerHTML = `<label class="kit-photo" title="Elegir foto">${src ? `<img src="${esc(src)}" alt="">` : "Foto"}<input type="file" accept="image/*" aria-label="Foto del artículo"></label>
+    <input type="text" placeholder="Nombre del artículo" aria-label="Nombre del artículo" value="${esc(item.name || "")}">
+    <input type="number" min="0" step="1" placeholder="Precio" aria-label="Precio individual (RD$)" value="${item.price ?? ""}">
+    <input type="number" min="1" step="1" value="${Number(item.qty) || 1}" aria-label="Cantidad">
+    <button class="icon-btn" type="button" aria-label="Quitar del combo">×</button>`;
+  row.querySelector("button").onclick = () => { row.remove(); updateKitSum(); };
+  row.querySelector("input[type=file]").addEventListener("change", async e => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    try { row.dataset.photo = await shrink(f, 900); row.querySelector(".kit-photo").innerHTML = `<img src="${esc(row.dataset.photo)}" alt="">`; row.querySelector(".kit-photo").appendChild(e.target); }
+    catch (err) { setStatus("No pude abrir esa foto. Prueba con una JPG o PNG.", true); }
+  });
+  row.addEventListener("input", updateKitSum);
+  $("kitRows").appendChild(row);
 }
+function readKit(){
+  return [...$("kitRows").querySelectorAll(".kit-row")].map(r => {
+    if (r.classList.contains("custom")) {
+      const [name, price, qty] = [...r.querySelectorAll("input:not([type=file])")].map(i => i.value);
+      const item = {id: r.dataset.id, custom: true, name: name.trim(), price: Number(String(price).replace(/[^\d]/g, "")) || 0, qty: Math.max(1, Number(qty) || 1), photo: r.dataset.path || ""};
+      if (r.dataset.photo) item._newPhoto = r.dataset.photo;
+      return item.name || item.price || item._newPhoto || item.photo ? item : null;
+    }
+    const id = r.querySelector("select").value;
+    return id ? {id, qty: Math.max(1, Number(r.querySelector("input").value) || 1)} : null;
+  }).filter(Boolean);
+}
+function itemPrice(k){ if (k.custom) return k.price || 0; const p = draft.find(x => x.id === k.id); return p && p.price ? p.price : 0; }
 function updateKitSum(){
   const items = readKit();
-  const sum = items.reduce((s, k) => { const p = draft.find(x => x.id === k.id); return s + (p && p.price ? p.price * k.qty : 0); }, 0);
+  const sum = items.reduce((s, k) => s + itemPrice(k) * k.qty, 0);
   const price = Number(String($("fPrice").value).replace(/[^\d]/g, "")) || 0;
-  const out = items.map(k => draft.find(x => x.id === k.id)).filter(p => p && (p.sold || (hasStock(p) && Number(p.stock) <= 0)));
-  $("kitSum").textContent = !items.length ? "Agrega al menos 2 productos." :
-    `Por separado: ${money(sum)}${price ? (price < sum ? ` · La clienta ahorra ${money(sum - price)}` : " · Ojo: el precio del kit no es menor que por separado") : ""}. La cantidad disponible se calcula sola con la de cada producto.` +
-    (out.length ? ` Ojo: ${out.map(p => p.name).join(", ")} está agotado, así que el kit saldrá agotado.` : "");
+  const out = items.filter(k => !k.custom).map(k => draft.find(x => x.id === k.id)).filter(p => p && (p.sold || (hasStock(p) && Number(p.stock) <= 0)));
+  $("kitSum").textContent = !items.length ? "Agrega al menos 2 artículos." :
+    `Precio de los artículos por separado: ${money(sum)}${price ? (price < sum ? ` · Precio del combo: ${money(price)} · La clienta ahorra ${money(sum - price)} (se verá ${money(sum)} tachado)` : " · Ojo: el precio del combo no es menor que por separado, así que no saldrá tachado") : ""}.` +
+    (out.length ? ` Ojo: ${out.map(p => p.name).join(", ")} está agotado, así que el combo saldrá agotado.` : "");
 }
 $("addKitItem").onclick = () => { kitRow("", 1); };
+$("addKitCustom").onclick = () => { customRow(); updateKitSum(); };
 $("fPrice").addEventListener("input", () => { if (formIsKit) updateKitSum(); });
 
 /* ---------- Save to GitHub ---------- */
@@ -318,6 +351,16 @@ async function save(okMsg){
       files.push({path, sha});
       outSettings.heroPhoto = path; delete outSettings._newHeroPhoto;
     }
+    const pendingItems = [];
+    out.forEach(p => (p.kit || []).forEach(k => { if (k._newPhoto) pendingItems.push({p, k}); }));
+    for (let i = 0; i < pendingItems.length; i++) {
+      const {p, k} = pendingItems[i];
+      setStatus(`Subiendo fotos de combos… ${i + 1} de ${pendingItems.length}`);
+      const {sha} = await api("/api/blob", {content: k._newPhoto.split(",")[1]});
+      const path = `img/${p.id}-${k.id}-${Date.now().toString(36)}.jpg`;
+      files.push({path, sha});
+      k.photo = path; delete k._newPhoto;
+    }
     const pendingRev = (outSettings.reviews || []).filter(r => r._newPhoto);
     for (let i = 0; i < pendingRev.length; i++) {
       const r = pendingRev[i];
@@ -328,8 +371,9 @@ async function save(okMsg){
       r.photo = path; delete r._newPhoto;
     }
     const revPhotos = s => (s.reviews || []).map(r => r.photo).filter(Boolean);
-    const keep = new Set(out.map(p => p.photo).filter(Boolean).concat(outSettings.heroPhoto || [], revPhotos(outSettings)));
-    const deletes = original.products.map(p => p.photo).concat(original.settings.heroPhoto || [], revPhotos(original.settings))
+    const comboPhotos = list => list.flatMap(p => (p.kit || []).map(k => k.photo)).filter(Boolean);
+    const keep = new Set(out.map(p => p.photo).filter(Boolean).concat(outSettings.heroPhoto || [], revPhotos(outSettings), comboPhotos(out)));
+    const deletes = original.products.map(p => p.photo).concat(original.settings.heroPhoto || [], revPhotos(original.settings), comboPhotos(original.products))
       .filter(ph => ph && ph.startsWith("img/") && !keep.has(ph));
     setStatus("Guardando…");
     await api("/api/save", {data: {products: out, settings: outSettings}, files, deletes});

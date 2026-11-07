@@ -279,6 +279,18 @@ footer .mark{font-size:1.2rem}
 .tone-list,.ship-list{display:grid;gap:8px}
 .kit-rows{display:grid;gap:8px}
 .kit-row{display:grid;grid-template-columns:1fr 70px 34px;gap:8px;align-items:center}
+.kit-row.custom{grid-template-columns:52px 1fr 90px 60px 34px}
+.kit-photo{position:relative;width:52px;height:52px;border-radius:10px;background:var(--blush);display:grid;place-items:center;font-size:.72rem;color:var(--muted);overflow:hidden;cursor:pointer}
+.kit-photo img{width:100%;height:100%;object-fit:cover}
+.kit-photo input{position:absolute;inset:0;opacity:0;cursor:pointer}
+@media (max-width:560px){
+  .kit-row.custom{grid-template-columns:52px 1fr 70px 34px;grid-template-areas:"ph name name x" "ph price qty x"}
+  .kit-row.custom > :nth-child(1){grid-area:ph}
+  .kit-row.custom > :nth-child(2){grid-area:name}
+  .kit-row.custom > :nth-child(3){grid-area:price}
+  .kit-row.custom > :nth-child(4){grid-area:qty}
+  .kit-row.custom > :nth-child(5){grid-area:x}
+}
 .kit-row select,.kit-row input{font:inherit;font-size:.95rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 10px;width:100%;min-width:0}
 .ship-row{display:grid;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px}
 .ship-row .r1{display:grid;grid-template-columns:1fr 110px 34px;gap:8px}
@@ -381,6 +393,9 @@ footer .mark{font-size:1.2rem}
 
 /* Kits */
 .badge.kit{background:var(--cocoa);color:var(--bg)}
+.combos{background:var(--blush);padding-block:26px 18px;margin-top:20px}
+.combos .row-head{margin-bottom:12px}
+.combo-card{flex:0 0 min(62vw,260px)}
 .kit-line{font-size:.75rem;color:var(--ok);font-weight:500;margin-top:2px}
 .pw{display:flex;flex-direction:column;line-height:1.1}
 .was{font-size:.8rem;color:var(--muted);white-space:nowrap}

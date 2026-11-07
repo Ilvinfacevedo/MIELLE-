@@ -2,7 +2,7 @@
 const $ = id => document.getElementById(id);
 const photoURL = p => p.photo ? (/^(https?:|data:|\/)/.test(p.photo) ? p.photo : "/" + p.photo) : "";
 const IG_DM = "https://ig.me/m/shopmiellerd";
-const CATS = {kits:"Kits y regalos",maquillaje:"Maquillaje",cabello:"Cabello",cuerpo:"Cuerpo y fragancias",accesorios:"Accesorios",bienestar:"Bienestar"};
+const CATS = {kits:"Combos",maquillaje:"Maquillaje",cabello:"Cabello",cuerpo:"Cuerpo y fragancias",accesorios:"Accesorios",bienestar:"Bienestar"};
 const PROVINCES = ["Distrito Nacional","Santo Domingo","Santiago","Azua","Bahoruco","Barahona","Dajabón","Duarte","Elías Piña","El Seibo","Espaillat","Hato Mayor","Hermanas Mirabal","Independencia","La Altagracia","La Romana","La Vega","María Trinidad Sánchez","Monseñor Nouel","Monte Cristi","Monte Plata","Pedernales","Peravia","Puerto Plata","Samaná","San Cristóbal","San José de Ocoa","San Juan","San Pedro de Macorís","Sánchez Ramírez","Santiago Rodríguez","Valverde"];
 const DEFAULT_SETTINGS = {
   whatsapp: "",
@@ -58,15 +58,19 @@ function drawing(p, cls){
 }
 const firstTone = p => (p.tones && p.tones[0] ? p.tones[0][0] : "");
 const hasStock = p => p.stock !== undefined && p.stock !== null && p.stock !== "";
-/* Kits are products whose `kit` lists other products [{id, qty}]; their stock comes from those products. */
+/* Combos ("kits" in the data) are products whose `kit` lists their items: store products {id, qty},
+   or items uploaded only for the combo {custom, name, price, photo, qty}. Stock comes from the store products. */
 const isKit = p => Array.isArray(p.kit) && p.kit.length > 0;
-const kitParts = p => (p.kit || []).map(k => ({p: products.find(x => x.id === k.id), qty: Math.max(1, Number(k.qty) || 1)})).filter(k => k.p);
+const kitParts = p => (p.kit || []).map(k => ({
+  p: k.custom ? {id: k.id, name: k.name || "Artículo", brand: "", price: Number(k.price) || 0, photo: k.photo || "", custom: true} : products.find(x => x.id === k.id),
+  qty: Math.max(1, Number(k.qty) || 1)
+})).filter(k => k.p);
 const kitRegular = p => { const parts = kitParts(p); return parts.every(k => k.p.price) ? parts.reduce((s, k) => s + k.p.price * k.qty, 0) : 0; };
 function maxQty(p){
   if (isKit(p)) {
     const parts = kitParts(p);
-    if (!parts.length || parts.some(k => k.p.sold)) return 0;
-    return Math.min(99, ...parts.map(k => hasStock(k.p) ? Math.floor(Math.max(0, Number(k.p.stock)) / k.qty) : 99));
+    if (!parts.length || parts.some(k => !k.p.custom && k.p.sold)) return 0;
+    return Math.min(99, ...parts.map(k => !k.p.custom && hasStock(k.p) ? Math.floor(Math.max(0, Number(k.p.stock)) / k.qty) : 99));
   }
   return hasStock(p) ? Math.max(0, Number(p.stock)) : 99;
 }
@@ -85,7 +89,7 @@ function badgeOf(p){
   if (left != null) return [left === 1 ? "¡Última unidad!" : `¡Quedan ${left}!`, "warn"];
   if (isTop(p)) return ["Más vendido", ""];
   if (p.badge === "nuevo") return ["Nuevo", "new"];
-  if (isKit(p)) return ["Kit", "kit"];
+  if (isKit(p)) return ["Combo", "kit"];
   return null;
 }
 function priceHTML(p){
@@ -109,7 +113,7 @@ function card(p, extra){
     ? `<img src="${esc(photoURL(p))}" alt="${esc(p.brand)} ${esc(p.name)}" loading="lazy">`
     : (isKit(p) && kitCollage(p)) || drawing(p, "draw");
   const parts = isKit(p) ? kitParts(p) : [];
-  const kitLine = parts.length ? `<span class="kit-line">${parts.reduce((s, k) => s + k.qty, 0)} productos${kitRegular(p) > p.price && p.price ? ` · ahorras ${money(kitRegular(p) - p.price)}` : ""}</span>` : "";
+  const kitLine = parts.length ? `<span class="kit-line">Combo de ${parts.reduce((s, k) => s + k.qty, 0)} artículos${kitRegular(p) > p.price && p.price ? ` · ahorras ${money(kitRegular(p) - p.price)}` : ""}</span>` : "";
   const add = isOut(p) ? "" : `<button class="plus" type="button" data-add="${esc(p.id)}" aria-label="Agregar ${esc(p.name)} al carrito">+</button>`;
   return `<article class="card ${extra || ""}">
     <button class="card-hit" type="button" data-open="${esc(p.id)}" aria-label="Ver ${esc(p.brand)} ${esc(p.name)}">
@@ -147,6 +151,18 @@ function renderRail(list){
   $("destacados").hidden = !picks.length;
   $("rail").innerHTML = picks.map(p => card(p, "rail-card")).join("");
 }
+/* ---------- Combos section on the home page ---------- */
+function renderCombos(list){
+  const combos = list.filter(isKit).sort((a, b) => (isOut(a) ? 1 : 0) - (isOut(b) ? 1 : 0));
+  $("combos").hidden = !combos.length;
+  $("comboRail").innerHTML = combos.map(p => card(p, "rail-card combo-card")).join("");
+}
+$("comboRail").addEventListener("click", e => onCatalogClick(e));
+$("combosAll").addEventListener("click", e => {
+  e.preventDefault(); filter = "kits"; render(products);
+  $("catalogo").scrollIntoView({behavior: "smooth"});
+});
+
 /* ---------- Customer reviews carousel ---------- */
 function renderReviews(){
   const list = (settings.reviews || []).filter(r => r.active !== false && r.photo);
@@ -247,7 +263,7 @@ function openSheet(p){
   $("sheetKit").hidden = !parts.length;
   if (parts.length) {
     const reg = kitRegular(p);
-    $("sheetKit").innerHTML = `<h3>Este kit incluye</h3><ul>${parts.map(k => `<li>
+    $("sheetKit").innerHTML = `<h3>Este combo incluye</h3><ul>${parts.map(k => `<li>
       <span class="thumb">${photoURL(k.p) ? `<img src="${esc(photoURL(k.p))}" alt="">` : drawing(k.p, "")}</span>
       <span><b>${k.qty > 1 ? k.qty + " × " : ""}${esc(k.p.name)}</b><small>${esc(k.p.brand || "")}${k.p.price ? " · " + money(k.p.price) : ""}</small></span>
     </li>`).join("")}</ul>${reg > p.price && p.price ? `<p class="kit-save">Por separado: ${money(reg)} · <b>ahorras ${money(reg - p.price)}</b></p>` : ""}`;
@@ -627,7 +643,7 @@ function waMessage(o){
   if (cu.ref) L.push(`Referencia: ${cu.ref}`);
   L.push("");
   L.push(`*Productos*`);
-  const kitNote = p => isKit(p) ? ` (Kit: ${kitParts(p).map(k => (k.qty > 1 ? k.qty + " " : "") + k.p.name).join(" + ")})` : "";
+  const kitNote = p => isKit(p) ? ` (Combo: ${kitParts(p).map(k => (k.qty > 1 ? k.qty + " " : "") + k.p.name).join(" + ")})` : "";
   c.ls.forEach(l => L.push(`• ${l.qty} x ${l.p.brand ? l.p.brand + " " : ""}${l.p.name}${l.tone ? " (" + l.tone + ")" : kitNote(l.p)} — ${l.total == null ? "precio por confirmar" : money(l.total)}`));
   L.push("");
   L.push(`Subtotal: ${money(c.subtotal)}`);
@@ -763,6 +779,7 @@ $("shareInvoice").onclick = async () => {
   if (savedPromo) { try { await applyPromo(savedPromo, true); } catch (e) {} }
   render(products);
   renderRail(products);
+  renderCombos(products);
   renderReviews();
   renderHero();
   fillOptions();
