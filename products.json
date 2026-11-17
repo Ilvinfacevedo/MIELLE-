@@ -419,7 +419,18 @@
     ],
     "bank": "Banco Banreservas 9607135828, Banco Pupular 834819708, Qik 1001714321, BHD 32773290019, Promerica 11010500225574",
     "announcement": "🚚 Enviamos a toda República Dominicana",
-    "promos": [],
+    "promos": [
+      {
+        "id": "cmwlce9tc",
+        "hash": "e70d5864380e30e4c979dea07cf239cb9ebc22bfcb9b38e24ef665164cb343e3",
+        "hint": "BLA",
+        "type": "percent",
+        "value": 15,
+        "min": 0,
+        "expires": "2026-11-30",
+        "active": true
+      }
+    ],
     "heroProduct": "",
     "freeShipFrom": null,
     "lowStockAt": 3,
