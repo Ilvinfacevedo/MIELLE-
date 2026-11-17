@@ -421,12 +421,12 @@
     "announcement": "🚚 Enviamos a toda República Dominicana",
     "promos": [
       {
-        "id": "cmwlce9tc",
+        "id": "cmwlcf7a4",
         "hash": "e70d5864380e30e4c979dea07cf239cb9ebc22bfcb9b38e24ef665164cb343e3",
         "hint": "BLA",
         "type": "percent",
         "value": 15,
-        "min": 0,
+        "min": 750,
         "expires": "2026-11-30",
         "active": true
       }
